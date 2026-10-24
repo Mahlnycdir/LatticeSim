@@ -11,21 +11,22 @@ def hamiltonian_matrix(N, a = 1.0):
     This represents the Hamiltonian matrix of our 
     discretized free scalar theory, namley
     H = 1/(2a) sum_j {P_j^2 + (phi_(j+1) - phi_j)}
-      = X^T M X,
+      = (1/2) X^T M X,
     where we defined 
     X = (phi_0,...,phi_(N-1),P_0,...,P_(N-1))^T.
     We would find the Matrix as 
-    [[ 1 -1 0 0... 0],
-     [-1  1 0 0 ... 0],
-     [ 0  0 1 0 ... 0]]
-     [ 0  0 0 1 ... 0]
+    [[ 1 -1  0  0  0 ... 0],
+     [-1  2 -1  0  0 ... 0], 
+     [ 0 -1  2 -1  0 ... 0],
+     [ 0  0 -1  2 -1 ... 0],
+            . 
             .  N - Times 
-            .]
-    The added Block is for N=2 
+            .
+     [ 0^(NxN),    I^(NxN)]]
     '''
-    phi_matrix = (np.eye(2) - np.fliplr(np.eye(2))) / 2*a
-    p_matrix   = np.eye(2) / 2*a 
-    z = np.zeros((2,2))
+    phi_matrix = (np.eye(2) - np.fliplr(np.eye(2))) / a # Wrong!!!
+    p_matrix   = np.eye(N) / a 
+    z = np.zeros((N,N))
     h = np.block([[phi_matrix, z],
                   [z, p_matrix]])
 
@@ -33,7 +34,7 @@ def hamiltonian_matrix(N, a = 1.0):
 
 def energy_eigenvalues(Hamiltonian):
     '''
-    Extracted from [X_c,H]. 
+    Extracted from [H,X_c]. 
     '''
     
 
