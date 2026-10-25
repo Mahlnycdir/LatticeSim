@@ -1,6 +1,10 @@
-from latsimpkg.scalar import ScalarFieldGaugeTheory
-from latsimpkg.ring import RingGaugeTheory
-from latsimpkg.charge_lattice import charge_lattice_spectrum
+from latsimpkg.analysis import correlators, sectors
+from latsimpkg.analysis.charge_lattice import charge_lattice_spectrum
+from latsimpkg.conventions import chiral
+from latsimpkg.lattice import Lattice
+from latsimpkg.models import build_gauge_model
+from latsimpkg.quadratic import QuadraticHamiltonian
+from latsimpkg.theory import ChiralTheory
 import numpy as np
 
 
@@ -15,25 +19,34 @@ MODELS = [("Schwinger (vector)", [1], [0]),
           ("3-4-5-0",            QV_3450, QA_3450)]
 
 
-def gauged_model(QV, QA, N, g, a=1.0):
-    """Gauged model with the full Hamiltonian already built."""
-    model = ScalarFieldGaugeTheory(N, a, g, QV, QA)
-    model.add_interacting_hamiltonian_matrix()
-    return model
+def theory_from(QV, QA, g, allow_anomalous=False):
+    """ChiralTheory with the pairing L_i <-> R_i of the given vector/axial charges."""
+    QL, QR = chiral(QV, QA)
+    return ChiralTheory(QL, QR, g, allow_anomalous=allow_anomalous)
+
+
+def gauged_model(QV, QA, N, g, a=1.0, allow_anomalous=False):
+    """Gauged model on the open chain."""
+    return build_gauge_model(theory_from(QV, QA, g, allow_anomalous), Lattice(N, a, "open"))
+
+
+def free_chain(N, a=1.0):
+    """A single free scalar on the Dirichlet chain."""
+    return build_gauge_model(ChiralTheory([0], [0], 0.0), Lattice(N, a, "open"))
 
 
 def free_modes(N, a=1.0):
     """Frequencies of a single free Dirichlet chain."""
-    free = ScalarFieldGaugeTheory(N, a)
-    free.free_hamiltonian_matrix()
-    return free.normal_modes()
+    return free_chain(N, a).H.frequencies
 
 
 def ring_model(QV, QA, N, g, a=1.0):
-    """Gauged model on the ring with the full Hamiltonian already built."""
-    model = RingGaugeTheory(N, a, g, QV, QA)
-    model.add_interacting_hamiltonian_matrix()
-    return model
+    """Gauged model on the ring."""
+    return build_gauge_model(theory_from(QV, QA, g), Lattice(N, a, "ring"))
+
+
+def meson_mass(model):
+    return model.theory.meson_masses[0]
 
 
 def fermion_content(NL, NR, QV, QA):
@@ -62,23 +75,22 @@ if __name__ == "__main__":
     N = 50
     a = 0.001
 
-    sc = ScalarFieldGaugeTheory(N, a)
-    sc.free_hamiltonian_matrix()
+    sc = free_chain(N, a)
 
     section(f"1. Free scalar field (N = {N}, a = {a})")
-    sig = sc.ground_state_covariance(np.diag([w**2, 1.0]))
+    sig = QuadraticHamiltonian(np.diag([w**2, 1.0])).covariance
     print(f"  Test 1  single oscillator:  <q^2> = {sig[0, 0]:.12f}   expected 1/(2w) = {1/(2*w):.12f}")
 
-    om = sc.normal_modes()
-    exact = (2 / sc.a) * np.sin(np.pi * np.arange(1, N + 1) / (2 * (N + 1)))
+    om = sc.H.frequencies
+    exact = (2 / sc.lattice.a) * np.sin(np.pi * np.arange(1, N + 1) / (2 * (N + 1)))
     print(f"  Test 2  Dirichlet chain:    max|omega - (2/a) sin(pi n/(2(N+1)))| = {np.max(np.abs(om - exact)):.1e}"
           f"   (relative {np.max(np.abs(om - exact) / exact):.1e})")
 
-    sig = sc.ground_state_covariance()
-    lam = np.linalg.eigvalsh(sig + 0.5j * sc.symplectic_matrix(N)).min()
+    sig = sc.H.covariance
+    lam = np.linalg.eigvalsh(sig + 0.5j * sc.H.J).min()
     print(f"  Test 3  uncertainty principle sigma + iJ/2 >= 0:  smallest eigenvalue = {lam:.1e}   (0 = pure state)")
 
-    E0 = sc.ground_state_energy()
+    E0 = sc.H.ground_state_energy
     print(f"  Test 4  zero-point energy:  E_0 = {E0:.6f}   expected sum_n omega_n/2 = {0.5 * exact.sum():.6f}")
 
     # ------------------------------------------------------------------
@@ -92,7 +104,7 @@ if __name__ == "__main__":
     for name, QV, QA in MODELS:
         m = gauged_model(QV, QA, N, g)
         print(f"  {name:20s} {str(QV):>10s} {str(QA):>10s} {np.dot(QV, QA):8.1f} "
-              f"{np.sum(np.square(QV) + np.square(QA)):8.1f} {m.meson_mass():8.4f}")
+              f"{np.sum(np.square(QV) + np.square(QA)):8.1f} {meson_mass(m):8.4f}")
 
     # ------------------------------------------------------------------
     # 3. Spectrum and Gauss law
@@ -102,7 +114,7 @@ if __name__ == "__main__":
           " with the free Dirichlet momenta k")
     for name, QV, QA in MODELS:
         m = gauged_model(QV, QA, N, g)
-        om = m.normal_modes(); mu = m.meson_mass()
+        om = m.H.frequencies; mu = meson_mass(m)
         pred = np.sort(np.concatenate([np.sqrt(mu**2 + kfree**2)] + [kfree] * (m.F - 1)))
         comm = np.abs(m.electric_field_commutator()).max()
         print(f"  {name:20s} modes = {len(om)}  mu = {mu:.4f}  omega_min = {om[0]:.4f}  "
@@ -121,11 +133,10 @@ if __name__ == "__main__":
     E0_free = 0.5 * kfree.sum()
     for name, QV, QA in MODELS:
         m = gauged_model(QV, QA, N, g)
-        sig = m.ground_state_covariance()
-        lam = np.linalg.eigvalsh(sig + 0.5j * m.symplectic_matrix(sig.shape[0] // 2)).min()
-        C = m.electric_field_matrix()
-        E2 = np.diag(C @ sig @ C.T)
-        E0 = m.ground_state_energy()
+        sig = m.H.covariance
+        lam = np.linalg.eigvalsh(sig + 0.5j * m.H.J).min()
+        E2 = np.diag(correlators.electric_field_correlator(m))
+        E0 = m.H.ground_state_energy
         print(f"  {name:20s} E_0 = {E0:10.4f}  E_0 - F E_0(free) = {E0 - m.F * E0_free:8.4f}  "
               f"<E^2> bulk = {E2[N // 2]:.3e}  boundary = {E2[0]:.3e}  min eig(sigma + iJ/2) = {lam:.1e}")
 
@@ -136,8 +147,8 @@ if __name__ == "__main__":
     for name, QV, QA, gg in [("vector", [1], [0], 0.1), ("axial", [0], [1], 0.1),
                              ("3-4-5-0", QV_3450, QA_3450, 0.04)]:
         m = gauged_model(QV, QA, N, gg)
-        mu = m.meson_mass()
-        mfit, B = m.meson_mass_from_E()
+        mu = meson_mass(m)
+        mfit, B = correlators.meson_mass_from_E(m)
         print(f"  {name:8s} g = {gg:.2f}  mu = {mu:.4f}  mu_fit = {mfit:.4f}  "
               f"rel. deviation = {abs(mfit - mu) / mu:.1e}  offset B = {B:.1e}")
 
@@ -146,7 +157,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     section("6. Anomalous charges: [E_j, E_k] = i (g^2/pi) (Q^V.Q^A) sign(k - j)")
     for QV, QA in [([1, 1], [1, 0]), ([1, 1], [1, 1]), ([2, 1], [1, 0]), (QV_3450, QA_3450)]:
-        m = ScalarFieldGaugeTheory(60, 1.0, g, QV, QA)
+        m = gauged_model(QV, QA, 60, g, allow_anomalous=True)
         comm = np.abs(m.electric_field_commutator()).max()
         pred = g**2 / np.pi * abs(np.dot(QV, QA))
         print(f"  Q^V = {str(QV):8s} Q^A = {str(QA):8s}  max|[E,E]| = {comm:.3e}   prediction = {pred:.3e}")
@@ -158,7 +169,7 @@ if __name__ == "__main__":
     print("  prediction: the massive branch has no mode below mu, every massless branch has #(k < mu)")
     for name, QV, QA in MODELS:
         m = gauged_model(QV, QA, N, g)
-        om = m.normal_modes(); mu = m.meson_mass()
+        om = m.H.frequencies; mu = meson_mass(m)
         print(f"  {name:20s} modes below mu: {np.sum(om < mu):3d}   prediction: {(m.F - 1) * np.sum(kfree < mu):3d}")
     print("  (a difference of one mode for axial charges comes from the shifted boundary momenta of section 3)")
 
@@ -174,9 +185,9 @@ if __name__ == "__main__":
         vals, preds, neff = [], [], []
         for n in Ns:
             m = gauged_model(QV, QA, n, g)
-            mu = m.meson_mass()
+            mu = meson_mass(m)
             k1 = 2 * np.sin(np.pi / (2 * (n + 1)))
-            om_min = m.normal_modes()[0]
+            om_min = m.H.frequencies[0]
             vals.append(om_min)
             preds.append(np.sqrt(mu**2 + k1**2) if m.F == 1 else k1)
             k_eff = np.sqrt(max(om_min**2 - mu**2, 0.0)) if m.F == 1 else om_min
@@ -195,8 +206,8 @@ if __name__ == "__main__":
     for a in [2.0, 1.0, 0.5]:
         n = int(round(L / a))
         m = gauged_model([1], [0], n, g, a)
-        mu = m.meson_mass()
-        print(f"  a = {a:4.2f}  N = {n:4d}  omega_min = {m.normal_modes()[0]:.6f}   "
+        mu = meson_mass(m)
+        print(f"  a = {a:4.2f}  N = {n:4d}  omega_min = {m.H.frequencies[0]:.6f}   "
               f"continuum = {np.sqrt(mu**2 + (np.pi / ((n + 1) * a))**2):.6f}")
 
     # ------------------------------------------------------------------
@@ -204,12 +215,11 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     section("10. Ring with zero modes: free compact boson (F = 1, g = 0, N = 20)")
     print("  prediction: E L/(2 pi) = (N_L^2 + N_R^2)/2 = h + hb,  s = (N_L^2 - N_R^2)/2 = h - hb")
-    r = RingGaugeTheory(20, 1.0, 0.0, [1], [0])
-    r.free_hamiltonian_matrix()
-    A = r.conserved_charges()
+    r = build_gauge_model(ChiralTheory([0], [0], 0.0), Lattice(20, 1.0, "ring"))
+    A = r.H.conserved_charges
     print(f"  conserved charges from ker(M J): {A.shape[1]}   (prediction 2: winding n and momentum m)")
     for NL, NR in [((1,), (0,)), ((0,), (1,)), ((1,), (1,)), ((2,), (0,)), ((2,), (1,))]:
-        d = r.sector_energy(NL, NR)
+        d = sectors.sector_energy(r, NL, NR)
         print(f"  N_L = {NL[0]:2d}  N_R = {NR[0]:2d}   E L/(2 pi) = {d['Delta']:.6f}  "
               f"(pred {(NL[0]**2 + NR[0]**2) / 2:.3f})   s = {d['s']:+.6f}  (pred {(NL[0]**2 - NR[0]**2) / 2:+.3f})")
 
@@ -222,10 +232,10 @@ if __name__ == "__main__":
     print("  Q^A.t_n + Q^V.t_m = 0, i.e. 2F - 1 of them, and the gauge charge q = Q^V.n + Q^A.m is one of them")
     for name, QV, QA in MODELS:
         r = ring_model(QV, QA, N_ring, g_ring)
-        A = r.conserved_charges()
-        T = r.charge_map()
-        anomaly = np.abs(T @ np.concatenate([r.QA, r.QV])).max() / np.abs(T).max()
-        gauge = np.concatenate([r.QV, r.QA])
+        A = r.H.conserved_charges
+        T = sectors.charge_map(r)
+        anomaly = np.abs(T @ np.concatenate([r.QA[0], r.QV[0]])).max() / np.abs(T).max()
+        gauge = np.concatenate([r.QV[0], r.QA[0]])
         resid = np.linalg.norm(gauge - np.linalg.pinv(T) @ T @ gauge) / np.linalg.norm(gauge)
         print(f"  {name:20s} number = {A.shape[1]} (pred {2 * r.F - 1})   "
               f"max|Q^A.t_n + Q^V.t_m| = {anomaly:.1e}   gauge charge outside span = {resid:.1e}   "
@@ -238,8 +248,8 @@ if __name__ == "__main__":
     print("  numerics: E L/(2 pi) and momentum of the constrained minimum;  analytics: h = |N_L^perp|^2/2, hb = |N_R^perp|^2/2")
     for name, QV, QA in MODELS:
         r = ring_model(QV, QA, N_ring, g_ring)
-        num = r.sector_scan(nmax=3, Delta_max=2.0)
-        ana = {(d["NL"], d["NR"]): d for d in charge_lattice_spectrum(QV, QA, nmax=3, Delta_max=2.0)}
+        num = sectors.sector_scan(r, nmax=3, Delta_max=2.0)
+        ana = {(d["NL"], d["NR"]): d for d in charge_lattice_spectrum(r.pairing, nmax=3, Delta_max=2.0)}
         print(f"  {name}: {len(num)} sectors numerically, {len(ana)} analytically")
         if not num and not ana:
             print("    none: the only conserved charge is the gauge charge, every neutral state lies in the vacuum sector")
@@ -267,7 +277,7 @@ if __name__ == "__main__":
     print(f"  {'N_L, N_R':20s} {'q':>4s}   " + "   ".join(f"E (N={n:3d})   E L/2pi" for n in Ns_ring))
     rings = [ring_model(QV_3450, QA_3450, n, g_ring) for n in Ns_ring]
     for NL, NR in tests:
-        ds = [r.sector_energy(NL, NR) for r in rings]
-        print(f"  {str(NL) + ' ' + str(NR):20s} {ds[0]['q']:4.0f}   " + "   ".join(
+        ds = [sectors.sector_energy(r, NL, NR) for r in rings]
+        print(f"  {str(NL) + ' ' + str(NR):20s} {ds[0]['q'][0]:4.0f}   " + "   ".join(
             f"{d['E']:.6f}  {d['Delta']:9.4f}" for d in ds))
 

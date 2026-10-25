@@ -147,7 +147,26 @@ pairing-invariance tests are green.
 
 ---
 
-## Phase 3 – Model building
+## Phase 3 – Model building  ✅ done
+
+Status: `latsimpkg/models/gauge.py` with `build_gauge_model(theory, lattice, theta, external_charges, pairing_order)
+-> GaugeModel` (instead of returning a bare `QuadraticHamiltonian`: the model also carries the phase space, the
+electric-field and link matrices, the pairing and the background, which the analysis needs; `model.H` is the
+`QuadraticHamiltonian`). U(1)^k, open chain and ring in one builder; bit-identical M to the old classes.
+The analysis code moved as is (generalized to U(1)^k) to `analysis/sectors.py`, `analysis/charge_lattice.py`,
+`analysis/correlators.py`; `base.py`, `scalar.py`, `ring.py` and the old `charge_lattice.py` are deleted.
+27 new tests in `tests/test_models.py`; `main.py` ported, output unchanged.
+
+Findings:
+- **Pairing and commuting electric fields (k > 1):** on the lattice
+  [E_a,j, E_b,k] = i (g_a g_b/π)(x_ab 1(j<=k) - x_ba 1(k<=j)) with x_ab = Q^V_a·Q^A_b. Anomaly freedom only gives
+  x_ab + x_ba = 0, so a constant commutator i x_ab can remain between different U(1)s. x_ab = (Q_R,a·Q_L,b - Q_L,a·Q_R,b)/4
+  depends on the pairing (regularization artefact) and vanishes iff Q_L Q_Rᵀ is symmetric. `choose_pairing` searches
+  for such a pairing and raises if none exists (none found among small charges; for k = 1 it always exists).
+- **Probe charges:** Schwinger screening V(d) = (g²q²/2μ)(1 - e^{-μd}) reproduced to 5e-4 (also for q = 1/2);
+  without charged matter V(d) = g²q²d/2 exactly (confinement).
+- **θ angle:** absorbed by the zero modes on the ring (energy 0 to 1e-15, massless fermions); on the open chain a small
+  boundary energy remains because the Dirichlet ends fix the zero mode.
 
 `build_gauge_hamiltonian(theory, lattice, theta=None, external_charges=None) -> QuadraticHamiltonian`
 - one construction kit instead of two classes: gradient, kinetic term, E field per U(1), boundary condition from `lattice`.
@@ -162,14 +181,37 @@ pairing-invariance tests are green.
 
 ## Phase 4 – Analysis layer
 
-- results as `dataclass`es (`Sector`, `SpectrumReport`, `FitResult`) instead of dicts; no `print`s in the library.
-- `sectors.scan(H, theory, nmax, Delta_max)` and `charge_lattice.spectrum(theory, ...)` return the same
-  types -> direct comparison `compare(numeric, analytic)`.
+Starting point: the modules in `analysis/` already exist (moved in phase 3) but still return dicts and use
+implicit fit windows; this phase redesigns them.
+
+- results as `dataclass`es (`Spectrum`, `Sector`, `SectorScan`, `FitResult`, `Potential`) instead of dicts;
+  no `print`s in the library; every result can be saved and loaded (`.npz`/JSON) without recomputation.
+- numerical scan and charge-lattice analysis return the same `Sector` type -> `SectorScan` holds both plus the comparison.
 - `correlators.meson_mass_from_E` with explicit fit windows instead of hidden heuristics.
 - classification (elementary / bound / multi-particle) with its documented assumption.
-- `studies/report.py` produces today's output of `main.py`.
+- **first user-facing API:** `find_bound_states(theory, N, g, ...)` (ring model, sector scan, analytic cross-check,
+  classification, report in one call), plus `spectrum(...)` and `screening_potential(...)`.
+- `studies/`: scripts that compute, save data and figures; they replace `main.py`.
 
 **Done when:** `main.py` is replaced by `studies/` and a new theory is fully analysed in ~5 lines.
+
+---
+
+## Release 0.1 – first usable version (after phase 4, then merge to `main`)
+
+1. **Plotting** (`latsimpkg/plotting.py`, matplotlib, headless): plots take saved results only (no recomputation);
+   vector PDF for LaTeX plus PNG. First plots: dispersion/spectrum, sector diagram in the (h, hb) plane with bound
+   states highlighted, finite-size scaling, E correlator with fit, screening/confinement potential.
+2. **Documentation** (`tools/build_docs.py`, `make docs`, LaTeX via latexmk), in English:
+   - API reference generated from the docstrings (docstrings keep ASCII math);
+   - hand-written theory chapters, prerequisite quantum mechanics and linear algebra: harmonic oscillator,
+     Gaussian states, Williamson normal form, lattice scalar field, bosonization, Gauss law and Schwinger model,
+     anomalies, compact bosons and charge lattice, charge sectors, worked example 3-4-5-0 (bound-state search);
+   - figures from `studies/` included automatically.
+3. **Literature cross-check** of all reference values, with citations.
+4. **Stress tests of the base**, above all the mathematics: property-based tests (random symplectic matrices,
+   random anomaly-free theories), time evolution vs. normal modes, invariances.
+5. **Roadmap clean-up** (finished phases condensed), merge to `main`.
 
 ---
 
