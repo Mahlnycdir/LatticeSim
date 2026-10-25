@@ -1,5 +1,8 @@
 import numpy as np
 
+import itertools
+
+import scipy.linalg as sl
 from scipy.special import k0
 from scipy.optimize import curve_fit
 

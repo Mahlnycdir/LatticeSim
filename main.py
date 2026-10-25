@@ -1,4 +1,6 @@
 from latsimpkg.scalar import ScalarFieldGaugeTheory
+from latsimpkg.ring import RingGaugeTheory
+from latsimpkg.charge_lattice import charge_lattice_spectrum
 import numpy as np
 
 
@@ -25,6 +27,25 @@ def free_modes(N, a=1.0):
     free = ScalarFieldGaugeTheory(N, a)
     free.free_hamiltonian_matrix()
     return free.normal_modes()
+
+
+def ring_model(QV, QA, N, g, a=1.0):
+    """Gauged model on the ring with the full Hamiltonian already built."""
+    model = RingGaugeTheory(N, a, g, QV, QA)
+    model.add_interacting_hamiltonian_matrix()
+    return model
+
+
+def fermion_content(NL, NR, QV, QA):
+    """Write a sector as product of fermion operators, e.g. psi_3L^2 psi_4L psibar_5R^2."""
+    QL = np.asarray(QV) + np.asarray(QA); QR = np.asarray(QV) - np.asarray(QA)
+    parts = []
+    for N_, Q, chi in [(NL, QL, "L"), (NR, QR, "R")]:
+        for k, q in zip(N_, Q):
+            if k:
+                op = ("psi" if k > 0 else "psibar") + f"_{q:g}{chi}"
+                parts.append(op + (f"^{abs(k)}" if abs(k) > 1 else ""))
+    return " ".join(parts) if parts else "1"
 
 
 def section(title):
@@ -177,3 +198,77 @@ if __name__ == "__main__":
         mu = m.meson_mass()
         print(f"  a = {a:4.2f}  N = {n:4d}  omega_min = {m.normal_modes()[0]:.6f}   "
               f"continuum = {np.sqrt(mu**2 + (np.pi / ((n + 1) * a))**2):.6f}")
+
+    # ------------------------------------------------------------------
+    # 10. Ring with zero modes: free compact boson
+    # ------------------------------------------------------------------
+    section("10. Ring with zero modes: free compact boson (F = 1, g = 0, N = 20)")
+    print("  prediction: E L/(2 pi) = (N_L^2 + N_R^2)/2 = h + hb,  s = (N_L^2 - N_R^2)/2 = h - hb")
+    r = RingGaugeTheory(20, 1.0, 0.0, [1], [0])
+    r.free_hamiltonian_matrix()
+    A = r.conserved_charges()
+    print(f"  conserved charges from ker(M J): {A.shape[1]}   (prediction 2: winding n and momentum m)")
+    for NL, NR in [((1,), (0,)), ((0,), (1,)), ((1,), (1,)), ((2,), (0,)), ((2,), (1,))]:
+        d = r.sector_energy(NL, NR, A)
+        print(f"  N_L = {NL[0]:2d}  N_R = {NR[0]:2d}   E L/(2 pi) = {d['Delta']:.6f}  "
+              f"(pred {(NL[0]**2 + NR[0]**2) / 2:.3f})   s = {d['s']:+.6f}  (pred {(NL[0]**2 - NR[0]**2) / 2:+.3f})")
+
+    # ------------------------------------------------------------------
+    # 11. Conserved charges of the gauged models
+    # ------------------------------------------------------------------
+    N_ring, g_ring = 60, 0.3
+    section(f"11. Conserved charges from ker(M J) on the ring (N = {N_ring}, g = {g_ring})")
+    print("  prediction: the conserved combinations t_n.n + t_m.m are the global U(1)s without mixed anomaly,")
+    print("  Q^A.t_n + Q^V.t_m = 0, i.e. 2F - 1 of them, and the gauge charge q = Q^V.n + Q^A.m is one of them")
+    for name, QV, QA in MODELS:
+        r = ring_model(QV, QA, N_ring, g_ring)
+        A = r.conserved_charges()
+        T = r.charge_map(A)
+        anomaly = np.abs(T @ np.concatenate([r.QA, r.QV])).max() / np.abs(T).max()
+        gauge = np.concatenate([r.QV, r.QA])
+        resid = np.linalg.norm(gauge - np.linalg.pinv(T) @ T @ gauge) / np.linalg.norm(gauge)
+        print(f"  {name:20s} number = {A.shape[1]} (pred {2 * r.F - 1})   "
+              f"max|Q^A.t_n + Q^V.t_m| = {anomaly:.1e}   gauge charge outside span = {resid:.1e}   "
+              f"max|[E,E]| = {np.abs(r.electric_field_commutator()).max():.1e}")
+
+    # ------------------------------------------------------------------
+    # 12. Sector search: numerics on the ring vs. charge-lattice analysis
+    # ------------------------------------------------------------------
+    section(f"12. Search for gauge-invariant massless sectors (ring N = {N_ring}, g = {g_ring}, |N| <= 3, Delta <= 2)")
+    print("  numerics: E L/(2 pi) and momentum of the constrained minimum;  analytics: h = |N_L^perp|^2/2, hb = |N_R^perp|^2/2")
+    for name, QV, QA in MODELS:
+        r = ring_model(QV, QA, N_ring, g_ring)
+        num = r.sector_scan(nmax=3, Delta_max=2.0)
+        ana = {(d["NL"], d["NR"]): d for d in charge_lattice_spectrum(QV, QA, nmax=3, Delta_max=2.0)}
+        print(f"  {name}: {len(num)} sectors numerically, {len(ana)} analytically")
+        if not num and not ana:
+            print("    none: the only conserved charge is the gauge charge, every neutral state lies in the vacuum sector")
+        for d in num:
+            a_ = ana.get((d["NL"], d["NR"]))
+            cmp = (f"ana Delta = {a_['Delta']:.4f}  s = {a_['s']:+.4f}" if a_ else "ana: not found")
+            print(f"    N_L = {str(d['NL']):9s} N_R = {str(d['NR']):9s}  Delta = {d['Delta']:.6f}  s = {d['s']:+.6f}  "
+                  f"(h, hb) = ({d['h']:.3f}, {d['hb']:.3f})   {cmp}   {d['kind']:15s} {fermion_content(d['NL'], d['NR'], QV, QA)}")
+        missing = set(ana) - {(d["NL"], d["NR"]) for d in num}
+        for key in sorted(missing):
+            print(f"    only analytic: N_L = {key[0]}  N_R = {key[1]}  Delta = {ana[key]['Delta']:.4f}")
+        bound = [d for d in num if d["kind"] == "bound state"]
+        print(f"    -> bound states: {len(bound)}" + "".join(
+            f"\n       {fermion_content(d['NL'], d['NR'], QV, QA)}   (h, hb) = ({d['h']:.2f}, {d['hb']:.2f}),"
+            f" gauge charge {np.dot(np.add(QV, QA), d['NL']) + np.dot(np.subtract(QV, QA), d['NR']):g}" for d in bound))
+
+    # ------------------------------------------------------------------
+    # 13. Volume dependence: massless sectors vs. charged sectors
+    # ------------------------------------------------------------------
+    section(f"13. Volume dependence of the sectors (3-4-5-0, g = {g_ring})")
+    print("  massless sector: E L/(2 pi) independent of L.  Charged sector (q != 0, forbidden by Gauss on the ring):")
+    print("  the seam acts as external counter charge, which is screened -> E stays finite (gapped), no 1/L state")
+    Ns_ring = [40, 80, 160]
+    tests = [((2, 1), (-2, 0)), ((0, 0), (0, 1)), ((2, 1), (-2, 1)), ((1, 0), (0, 0)), ((0, 0), (1, 0))]
+    print(f"  {'N_L, N_R':20s} {'q':>4s}   " + "   ".join(f"E (N={n:3d})   E L/2pi" for n in Ns_ring))
+    rings = [ring_model(QV_3450, QA_3450, n, g_ring) for n in Ns_ring]
+    charges = [r.conserved_charges() for r in rings]
+    for NL, NR in tests:
+        ds = [r.sector_energy(NL, NR, A) for r, A in zip(rings, charges)]
+        print(f"  {str(NL) + ' ' + str(NR):20s} {ds[0]['q']:4.0f}   " + "   ".join(
+            f"{d['E']:.6f}  {d['Delta']:9.4f}" for d in ds))
+
