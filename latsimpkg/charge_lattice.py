@@ -28,7 +28,7 @@ def classify_sector(NL, NR, Delta, s, tol=1e-6):
         kind = "elementary" if norm == 1 else "bound state"
     else:
         kind = "multi-particle"
-    clean = lambda x: float(np.round(x, 12)) + 0.0         # avoid printing -0.000
+    clean = lambda x: 0.0 if abs(x) < 1e-9 else float(x)   # numerical zeros, avoids printing -0.000
     return {"NL": NL, "NR": NR, "Delta": clean(Delta), "s": clean(s),
             "h": clean((Delta + s) / 2), "hb": clean((Delta - s) / 2), "kind": kind}
 
