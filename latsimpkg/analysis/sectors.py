@@ -11,7 +11,8 @@ import itertools
 
 import numpy as np
 
-from latsimpkg.analysis.charge_lattice import classify_sector
+from latsimpkg.analysis.charge_lattice import classify_sector, fermion_content, sort_sectors
+from latsimpkg.analysis.results import SectorEnergy
 from latsimpkg.conventions import SQRT_PI, winding_momentum
 
 
@@ -56,12 +57,12 @@ def sector_energy(model, NL, NR):
     Energy of the lowest state in the sector with chiral fermion numbers (N_L, N_R).
 
     Returns:
-        dict: q (gauge charges, shape (k,)), E, Delta = E L/(2 pi), s = -P L/(2 pi).
+        SectorEnergy: gauge charges q (shape (k,)), E, Delta = E L/(2 pi), s = -P L/(2 pi).
     """
     n, m = winding_momentum(NL, NR)
     c = model.H.conserved_charges.T @ sector_state(model, n, m)
     E, Delta, s = _sector(model, c)
-    return {"q": model.gauge_charges(n, m), "E": E, "Delta": Delta, "s": s}
+    return SectorEnergy(model.gauge_charges(n, m), E, Delta, s)
 
 
 def sector_scan(model, nmax=3, Delta_max=2.0):
@@ -77,7 +78,7 @@ def sector_scan(model, nmax=3, Delta_max=2.0):
         Delta_max (float, optional): Keep sectors with E L/(2 pi) <= Delta_max. Defaults to 2.0.
 
     Returns:
-        list[dict]: Sectors sorted by Delta.
+        list[Sector]: Sorted by Delta, then by decreasing s.
     """
     T = charge_map(model)
     scale = np.abs(T).max() if T.size else 1.0
@@ -98,5 +99,5 @@ def sector_scan(model, nmax=3, Delta_max=2.0):
         E, Delta, s = _sector(model, c)
         if Delta > Delta_max + 1e-6 or Delta < 1e-9:
             continue
-        sectors.append(classify_sector(NL, NR, Delta, s))
-    return sorted(sectors, key=lambda d: (round(d["Delta"], 6), -round(d["s"], 6), d["NL"]))
+        sectors.append(classify_sector(NL, NR, Delta, s, fermion_content(NL, NR, model.theory, model.pairing)))
+    return sort_sectors(sectors)

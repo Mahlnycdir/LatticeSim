@@ -80,6 +80,16 @@ class GaugeModel:
         return self.pairing.QA
 
 
+    def describe(self):
+        """Parameters of the model as plain dict (for the `meta` of results)."""
+        lat = self.lattice
+        return {"QL": self.theory.QL.tolist(), "QR": self.theory.QR.tolist(), "g": self.theory.g.tolist(),
+                "names_L": list(self.theory.names_L), "names_R": list(self.theory.names_R),
+                "N": lat.N, "a": lat.a, "boundary": lat.boundary, "L": lat.L,
+                "pairs": [list(p) for p in self.pairing.pairs],
+                "theta_or_probes": bool(np.any(self.background))}
+
+
     def gauge_charges(self, n, m):
         """Gauge charges q_a = Q^V_a . n + Q^A_a . m of the sector with windings n and momenta m."""
         return self.QV @ np.asarray(n, dtype=float) + self.QA @ np.asarray(m, dtype=float)

@@ -4,6 +4,7 @@ import itertools
 import numpy as np
 import scipy.linalg as sl
 
+from latsimpkg.analysis.results import Sector
 from latsimpkg.conventions import chiral
 
 
@@ -16,7 +17,28 @@ def _perp_projector(Q):
     return np.eye(F) - basis @ basis.T
 
 
-def classify_sector(NL, NR, Delta, s, tol=1e-6):
+def fermion_content(NL, NR, theory=None, pairing=None):
+    """
+    Write a sector as product of fermion operators, e.g. "psi_3L^2 psi_4L psi_5R^-2".
+
+    The exponent is the fermion number (negative: antiparticles). With `theory` and `pairing` the
+    names of the theory are used; added spectators are called "spectator_L<i>" / "spectator_R<i>".
+    """
+    parts = []
+    for chi, numbers in (("L", NL), ("R", NR)):
+        for i, n in enumerate(numbers):
+            if not n:
+                continue
+            name = f"{chi}{i}"
+            if theory is not None and pairing is not None:
+                idx = pairing.pairs[i][0 if chi == "L" else 1]
+                names = theory.names_L if chi == "L" else theory.names_R
+                name = names[idx] if idx is not None else f"spectator_{chi}{i}"
+            parts.append(name if n == 1 else f"{name}^{int(n)}")
+    return " ".join(parts) if parts else "1"
+
+
+def classify_sector(NL, NR, Delta, s, content="", tol=1e-6):
     """
     Collect the data of a sector and classify it.
 
@@ -27,7 +49,7 @@ def classify_sector(NL, NR, Delta, s, tol=1e-6):
     (This criterion assumes that the massless sector is fermionic, h in k^2/2, as for 3-4-5-0.)
 
     Returns:
-        dict: NL, NR, Delta, s, h, hb, kind.
+        Sector
     """
     NL, NR = tuple(int(x) for x in NL), tuple(int(x) for x in NR)
     norm = sum(x * x for x in NL + NR)
@@ -36,11 +58,10 @@ def classify_sector(NL, NR, Delta, s, tol=1e-6):
     else:
         kind = "multi-particle"
     clean = lambda x: 0.0 if abs(x) < 1e-9 else float(x)   # numerical zeros, avoids printing -0.000
-    return {"NL": NL, "NR": NR, "Delta": clean(Delta), "s": clean(s),
-            "h": clean((Delta + s) / 2), "hb": clean((Delta - s) / 2), "kind": kind}
+    return Sector(NL, NR, clean(Delta), clean(s), kind, content)
 
 
-def charge_lattice_spectrum(pairing, nmax=3, Delta_max=2.0):
+def charge_lattice_spectrum(pairing, nmax=3, Delta_max=2.0, theory=None):
     """
     Continuum prediction for the gauge-invariant massless sectors.
 
@@ -56,9 +77,10 @@ def charge_lattice_spectrum(pairing, nmax=3, Delta_max=2.0):
         pairing (Pairing): Charges of the Dirac bosons, e.g. `theory.pairing()` or `model.pairing`.
         nmax (int, optional): Range of the fermion numbers. Defaults to 3.
         Delta_max (float, optional): Keep sectors with h + hb <= Delta_max. Defaults to 2.0.
+        theory (ChiralTheory, optional): Only used to name the fermions in `Sector.content`.
 
     Returns:
-        list[dict]: Sectors sorted by Delta, see `classify_sector`.
+        list[Sector]: Sorted by Delta, then by decreasing s.
     """
     QL, QR = chiral(pairing.QV, pairing.QA)
     F = QL.shape[1]
@@ -76,5 +98,10 @@ def charge_lattice_spectrum(pairing, nmax=3, Delta_max=2.0):
     sectors = []
     for norm, NL, NR, h, hb in classes.values():
         if 1e-9 < h + hb <= Delta_max + 1e-6:
-            sectors.append(classify_sector(NL, NR, h + hb, h - hb))
-    return sorted(sectors, key=lambda d: (round(d["Delta"], 6), -round(d["s"], 6), d["NL"]))
+            sectors.append(classify_sector(NL, NR, h + hb, h - hb, fermion_content(NL, NR, theory, pairing)))
+    return sort_sectors(sectors)
+
+
+def sort_sectors(sectors):
+    """Canonical order: increasing Delta, decreasing s, then by representative."""
+    return sorted(sectors, key=lambda x: (round(x.Delta, 6), -round(x.s, 6), x.NL, x.NR))

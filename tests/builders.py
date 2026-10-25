@@ -80,7 +80,8 @@ def meson_mass(model):
 
 def meson_mass_fit(model):
     """(mu_fit, B) from the electric-field correlator."""
-    return correlators.meson_mass_from_E(model)
+    fit = correlators.meson_mass_from_E(model)
+    return fit.mu, fit.B
 
 
 def conserved_charges(model):
@@ -95,14 +96,15 @@ def charge_map(model):
 
 def sector_energy(model, NL, NR):
     """Dict with q, E, Delta = E L/2pi, s for the sector (N_L, N_R)."""
-    return sectors.sector_energy(model, NL, NR)
+    e = sectors.sector_energy(model, NL, NR)
+    return {"q": e.q, "E": e.E, "Delta": e.Delta, "s": e.s}
 
 
 def sector_scan(model, nmax=3, Delta_max=2.0):
     """Numerical sectors as list of dicts with NL, NR, Delta, s, h, hb, kind."""
-    return sectors.sector_scan(model, nmax=nmax, Delta_max=Delta_max)
+    return [s.as_dict() for s in sectors.sector_scan(model, nmax=nmax, Delta_max=Delta_max)]
 
 
 def analytic_sectors(QL, QR, nmax=3, Delta_max=2.0):
     """Charge-lattice prediction, same format as `sector_scan`."""
-    return charge_lattice_spectrum(ChiralTheory(QL, QR).pairing(), nmax=nmax, Delta_max=Delta_max)
+    return [s.as_dict() for s in charge_lattice_spectrum(ChiralTheory(QL, QR).pairing(), nmax=nmax, Delta_max=Delta_max)]

@@ -179,10 +179,14 @@ Findings:
 
 ---
 
-## Phase 4 – Analysis layer
+## Phase 4 – Analysis layer  ✅ done
 
-Starting point: the modules in `analysis/` already exist (moved in phase 3) but still return dicts and use
-implicit fit windows; this phase redesigns them.
+Status: `analysis/results.py` (`Sector`, `SectorScan`, `SectorEnergy`, `Spectrum`, `Series`, `FitWindow`, `FitResult`,
+`Potential`, all saveable as .npz with JSON meta), `analysis/spectrum.py`, `analysis/potentials.py`, explicit fit
+windows in `analysis/correlators.py`, `latsimpkg/api.py` (`find_bound_states`, `spectrum`, `screening_potential`,
+exported from `latsimpkg`). `studies/` (free_field, spectra, correlators, sectors, potentials; `python -m studies`)
+replaces `main.py` and writes all results to `results/` (git-ignored). 32 new tests in `tests/test_api_results.py`
+(3 of them slow). Sectors now name their fermion content from the theory, e.g. "psi_3L^2 psi_4L psi_5R^-2".
 
 - results as `dataclass`es (`Spectrum`, `Sector`, `SectorScan`, `FitResult`, `Potential`) instead of dicts;
   no `print`s in the library; every result can be saved and loaded (`.npz`/JSON) without recomputation.

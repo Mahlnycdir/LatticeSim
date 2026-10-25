@@ -7,7 +7,8 @@ from latsimpkg.analysis.sectors import charge_map, sector_scan
 from latsimpkg.lattice import Lattice
 from latsimpkg.models import build_gauge_model
 from latsimpkg.theory import ChiralTheory, model_3450, schwinger
-from physics import dirichlet_momenta, sector_signature
+from latsimpkg.analysis.results import sector_signature
+from physics import dirichlet_momenta
 
 
 def build(theory, N=40, boundary="open", **kwargs):
@@ -102,7 +103,7 @@ def test_u1_squared_sectors_match_charge_lattice():
     num = sector_scan(m, nmax=2, Delta_max=1.0)
     ana = charge_lattice_spectrum(m.pairing, nmax=2, Delta_max=1.0)
     assert sector_signature(num) == sector_signature(ana)
-    assert sum(d["kind"] == "bound state" for d in num) == 2
+    assert sum(x.kind == "bound state" for x in num) == 2
 
 
 # ----------------------------------------------------------------------
