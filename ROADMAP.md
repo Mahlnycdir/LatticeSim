@@ -220,8 +220,15 @@ replaces `main.py` and writes all results to `results/` (git-ignored). 32 new te
    (53 pages, builds without LaTeX warnings). `Makefile` with test/test-all/studies/figures/docs/clean.
    11 tests in `tests/test_docs.py`, including: every module is in the API reference, every public object has a
    docstring (29 were added), every figure is shown, every reference is cited, the full build has no warnings (slow).
-3. **Literature cross-check** of all reference values, with citations. Includes verifying the bibliography of
+3. ✅ **Literature cross-check** of all reference values, with citations. Includes verifying the bibliography of
    `docs/chapters/references.tex` (written from memory) and the claims attributed to it.
+   Done: all 12 references verified (publisher/arXiv); corrections: Wang-Wen is PRD 99, 111501(R), page ranges added;
+   new reference Bharadwaj-Isen-Kang, arXiv:2607.19468. `tests/test_literature.py` (11 tests): Schwinger mass;
+   massless-Schwinger static potential = (sqrt(pi)/2) e q^2 (1 - e^{-mu d}) (their eq. 3.88, identical to ours);
+   string tension e^2 q^2 / 2 (eq. 3.2); K_0 propagator normalization (numerical integral); 3-4-5-0 anomaly;
+   Tong's second symmetry H = (5,0|3,-4) is found among our conserved charges; gauging H reproduces Tong's IR Dirac
+   fermion exactly (Psi = psi2, Psit = psi1^2 (psit1^dag)^2 psit2, G = +4 / -4); our 3-4-5-0 is its parity mirror.
+   Documentation: comparison paragraph in chapter 7, potential in chapter 5, table in appendix A.
 4. **Stress tests of the base**, above all the mathematics: property-based tests (random symplectic matrices,
    random anomaly-free theories), time evolution vs. normal modes, invariances.
 5. **Roadmap clean-up** (finished phases condensed), merge to `main`.

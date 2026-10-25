@@ -36,5 +36,27 @@ The library is tested against analytic results (\code{pytest}; \code{pytest -m s
   \item bound states: 3-4-5-0 sectors and bound states, lattice $=$ charge lattice, independence of $g$ and $N$,
     $U(1)^2$ examples;
   \item invariances: pairing, flavor permutation, charge conjugation;
+  \item literature: the values of \cref{sec:literature};
   \item infrastructure: saving and loading of all results, plotting without global state, incremental figures.
 \end{itemize}
+
+\section{Literature cross-check}\label{sec:literature}
+Every reference value of the library was compared with the literature (\code{tests/test_literature.py}). All
+bibliographic data of the references were checked against the publishers or arXiv.
+\begin{center}
+\small
+\begin{tabular}{@{}p{0.27\linewidth}p{0.33\linewidth}p{0.18\linewidth}l@{}}
+\toprule
+quantity & literature & source & lattice \\
+\midrule
+Schwinger mass & $\mu = e/\sqrt\pi$ & \cite{Schwinger1962} & exact \\
+static potential, massless Schwinger & $\frac{\sqrt\pi}{2}eq^2(1 - e^{-\mu d})$ & \cite{BharadwajIsenKang2026}, eq.~(3.88) & $5\times10^{-4}$ \\
+screening of all charges & massless fermions screen & \cite{CJS1975} & reproduced \\
+string tension without matter & $V = e^2q^2d/2$ & \cite{BharadwajIsenKang2026}, eq.~(3.2) & $10^{-12}$ \\
+anomaly cancellation & $\sum Q_L^2 = \sum Q_R^2$; $3^2+4^2 = 5^2$ & \cite{Tong2022,WangWen2019} & exact \\
+second symmetry of 3-4-5-0 & $H = (5,0|3,-4)$, no mixed anomaly with $G$ & \cite{Tong2022}, sec.~3 & found \\
+$H$ gauged: IR Dirac fermion & $\Psi = \psi_2$, $\tilde\Psi = \psi_1^2(\tilde\psi_1^\dagger)^2\tilde\psi_2$, $G = \pm4$ & \cite{Tong2022}, sec.~3 & exact \\
+equal-time propagator & $\int\frac{dk}{2\pi}\frac{e^{ikx}}{2\omega_k} = \frac{K_0(\mu|x|)}{2\pi}$ & numerical integration & $10^{-6}$ \\
+\bottomrule
+\end{tabular}
+\end{center}

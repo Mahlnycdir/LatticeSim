@@ -84,9 +84,22 @@ The bound state is neutral, $2\cdot3 + 1\cdot4 - 2\cdot5 = 0$, and left-moving w
 \eqref{eq:charge-lattice}, $N_L^\perp$ is the component of $(2,1)$ orthogonal to $(3,4)$, of length
 $|4\cdot2 - 3\cdot1|/5 = 1$, and $N_R^\perp = 0$. It is a massless gauge-invariant composite fermion. Together with
 the neutral right mover $\psi_{0R}$ it forms the massless low-energy content of the theory: one left- and one
-right-moving fermion, central charges $(c_L, c_R) = (1,1)$ instead of $(2,2)$ before gauging.
+right-moving fermion, central charges $(c_L, c_R) = (1,1)$ instead of $(2,2)$ before gauging. Counting particle and
+antiparticle, the theory has two bound states.
 
 \latsimfigure{sectors_3450}
+
+\paragraph{Comparison with the literature.} The same four fermions carry a second anomaly-free $U(1)$,
+$H = (5,0\,|\,3,-4)$, without mixed anomaly with $G = (3,4\,|\,5,0)$~\cite{Tong2022}; the library finds $H$ among the
+surviving global symmetries of the gauged 3-4-5-0 model. Tong gauges $H$ and finds at low energies a single massless
+Dirac fermion, the elementary left mover $\Psi = \psi_2$ and the gauge-invariant composite right mover
+$\tilde\Psi = \psi_1^2(\tilde\psi_1^\dagger)^2\tilde\psi_2$, with $G$-charges $+4$ and $-4$~\cite{Tong2022}.
+\code{find_bound_states(ChiralTheory([5, 0], [3, -4]))} reproduces exactly this: $\psi_2$ is elementary with
+$(h,\bar h) = (\frac12,0)$, and the only bound states are $\psi_1^{\pm2}\tilde\psi_1^{\mp2}\tilde\psi_2^{\pm1}$ with
+$(h,\bar h) = (0,\frac12)$ and $G$-charge $\mp4$. Gauging $G$ instead, as in this chapter, is the same theory up to
+parity ($L\leftrightarrow R$) and charge conjugation of one fermion, and the sectors coincide with $h$ and $\bar h$
+exchanged (\code{tests/test_literature.py}). Wang and Wen~\cite{WangWen2019} show that the 3-4-5-0 theory can be
+realized as the low-energy limit of a local lattice model with an on-site $U(1)$ symmetry.
 
 \paragraph{Volume dependence.} \Cref{fig:sector_volume_dependence} shows $EL/2\pi$ against the ring size. The
 neutral massless sectors stay exactly at $h+\bar h$. Charged sectors are forbidden by the Gauss law on the ring; if
