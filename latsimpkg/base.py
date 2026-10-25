@@ -1,9 +1,9 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 import numpy as np 
 
 
-class LatticeHamiltonian:
+class LatticeHamiltonian(ABC):
     """
     Base class for all lattice simulations in the Hamiltonian formulation.
 
@@ -46,7 +46,7 @@ class LatticeHamiltonian:
             
             
     @abstractmethod
-    def free_hamiltonian_matrix():
+    def free_hamiltonian_matrix(self):
         """
         Build the free (non-interacting) part of the Hamiltonian.
 
