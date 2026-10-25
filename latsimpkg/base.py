@@ -58,7 +58,7 @@ class LatticeHamiltonian(ABC):
         """
         
         
-    def interacting_hamiltonian_matrix(self):
+    def add_interacting_hamiltonian_matrix(self, *args):
         """
         Build the interacting part of the Hamiltonian.
 
