@@ -17,15 +17,25 @@ class Tolerances:
     All numerical thresholds in one place. Values are relative to the scale of M
     (its largest eigenvalue) unless stated otherwise.
 
+    Zero modes: eigenvalues of M below `kernel` (relative) are zero, above `resolved` they are physical.
+    In between a double-precision computation cannot tell them apart (rounding errors of an eigenvalue are
+    ~ n eps max|M|); there the number of zero modes must be given explicitly (`n_zero`), otherwise an error
+    is raised instead of guessing.
+
     Attributes:
         symmetry (float): Allowed max|M - M^T| / max|M|.
         psd (float): Allowed negative eigenvalue of M, relative.
-        kernel (float): Eigenvalues of M below this (relative) count as zero modes.
+        kernel (float): Relative eigenvalues below this are zero modes.
+        resolved (float): Relative eigenvalues above this are physical.
+        gap (float): With `n_zero` given: required ratio between the smallest physical and the largest zero
+            eigenvalue (and the largest zero eigenvalue must lie below `kernel`).
         isotropy (float): Allowed max|K^T J K| for the kernel K (absolute, K orthonormal).
     """
     symmetry: float = 1e-10
     psd: float = 1e-10
-    kernel: float = 1e-10
+    kernel: float = 1e-13
+    resolved: float = 1e-11
+    gap: float = 1e2
     isotropy: float = 1e-8
 
 
@@ -58,13 +68,16 @@ class QuadraticHamiltonian:
         M (array_like): The (2n x 2n) Hamiltonian matrix.
         phasespace (PhaseSpace, optional): Layout of X. Defaults to `PhaseSpace.flat(n)`.
         tol (Tolerances, optional): Numerical thresholds.
+        n_zero (int, optional): Exact number of zero modes, if known (e.g. from the symmetries of a model).
+            Then the n_zero smallest eigenvalues are the kernel, and a clear spectral gap is required.
 
     Raises:
         ValueError: If M is not square, has odd dimension, is not finite, not symmetric,
-            not positive semidefinite, does not match the phase space, or has a non-isotropic kernel.
+            not positive semidefinite, does not match the phase space, has a non-isotropic kernel, or if
+            zero modes and physical modes cannot be separated at double precision.
     """
 
-    def __init__(self, M, phasespace=None, tol=Tolerances()):
+    def __init__(self, M, phasespace=None, tol=Tolerances(), n_zero=None):
         M = np.array(M, dtype=float)
         if M.ndim != 2 or M.shape[0] != M.shape[1]:
             raise ValueError(f"M must be a square matrix, got shape {M.shape}.")
@@ -88,10 +101,14 @@ class QuadraticHamiltonian:
         w = self._eigh[0]
         if w.size and w.min() < -tol.psd * max(w.max(), 1.0):
             raise ValueError(f"M is not positive semidefinite (smallest eigenvalue {w.min():.2e}).")
+        self._zero = self._zero_modes(n_zero)
         K = self.kernel
-        if K.shape[1] and np.abs(K.T @ self.J @ K).max() > tol.isotropy:
+        # K^T J K = 0 up to rounding, which grows with the conditioning of M
+        if K.shape[1] and np.abs(K.T @ self.J @ K).max() > max(tol.isotropy, 10 * self.precision):
             raise ValueError("The kernel of M is not isotropic (K^T J K != 0): the zero modes are not "
-                             "free particles and the Hamiltonian has no Williamson normal form.")
+                             "free particles and the Hamiltonian has no Williamson normal form "
+                             f"(condition number of M ~ {self.condition:.0e}; for an ill-conditioned M this can "
+                             "also be rounding noise).")
 
 
     # ------------------------------------------------------------------
@@ -106,16 +123,51 @@ class QuadraticHamiltonian:
     def _eigh(self):
         return np.linalg.eigh(self.M)
 
-    @cached_property
-    def _zero(self):
-        """Mask of the eigenvalues of M that count as zero."""
+    def _zero_modes(self, n_zero):
+        """Mask of the eigenvalues of M that are zero modes (eigenvalues are sorted ascending)."""
         w = self._eigh[0]
-        return w <= self.tol.kernel * max(w.max(initial=0.0), 1e-300)
+        scale = max(w.max(initial=0.0), 1e-300)
+        rel = np.abs(w) / scale
+        if n_zero is not None:
+            if not 0 <= n_zero <= len(w):
+                raise ValueError(f"n_zero = {n_zero} is not between 0 and {len(w)}.")
+            mask = np.arange(len(w)) < n_zero
+            largest_zero = rel[n_zero - 1] if n_zero else 0.0
+            smallest_physical = rel[n_zero] if n_zero < len(w) else np.inf
+            if largest_zero > self.tol.kernel or smallest_physical < self.tol.gap * max(largest_zero, 1e-300):
+                raise ValueError(
+                    f"Expected {n_zero} zero modes, but the spectrum of M does not separate them at double "
+                    f"precision (largest zero eigenvalue {largest_zero:.1e}, smallest physical {smallest_physical:.1e}, "
+                    f"relative to max|M|). A mass term of relative size ~1e-15 or below is lost in rounding: increase "
+                    f"the coupling or the lattice spacing.")
+            return mask
+        ambiguous = (rel > self.tol.kernel) & (rel < self.tol.resolved)
+        if np.any(ambiguous):
+            raise ValueError(
+                f"Eigenvalues of M of relative size {', '.join(f'{x:.1e}' for x in rel[ambiguous])} cannot be "
+                f"classified as zero or physical modes at double precision; pass the number of zero modes n_zero.")
+        return rel <= self.tol.kernel
 
     @cached_property
     def kernel(self):
         """Orthonormal basis K of ker M (flat directions), shape (2n, r)."""
         return self._eigh[1][:, self._zero]
+
+    @cached_property
+    def condition(self):
+        """Condition number of M on the oscillator space: largest / smallest non-zero eigenvalue."""
+        w = np.abs(self._eigh[0][~self._zero])
+        return float(w.max() / w.min()) if w.size else 1.0
+
+    @property
+    def precision(self):
+        """
+        Estimated relative accuracy, condition * eps, of quantities that invert M on the oscillator space
+        (constrained minima and free-particle energies, covariance). Small entries of M (e.g. a tiny mass term
+        g^2 next to O(1) gradient terms) lose their digits already when M is assembled, so no algorithm can do
+        better in double precision.
+        """
+        return self.condition * np.finfo(float).eps
 
     @property
     def n_free(self):

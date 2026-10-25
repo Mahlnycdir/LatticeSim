@@ -16,9 +16,27 @@ from latsimpkg.analysis.results import SectorEnergy
 from latsimpkg.conventions import SQRT_PI, winding_momentum
 
 
+# Sector energies Delta are classified with tolerance 1e-6 (`classify_sector`); refuse to compute them if the
+# expected rounding error of the model (`QuadraticHamiltonian.precision`) reaches this level.
+MAX_SECTOR_ERROR = 1e-6
+
+
 def _require_ring(model):
     if not model.lattice.is_ring:
         raise ValueError("Charge sectors need the ring (the open chain has no windings).")
+
+
+def _require_precision(model):
+    """Raise if the sector energies of this model cannot be computed reliably in double precision."""
+    if model.H.precision > MAX_SECTOR_ERROR:
+        masses = model.theory.meson_masses
+        mu = masses[masses > 0]
+        scales = (f"mu a = {mu.min() * model.lattice.a:.1e} ... {mu.max() * model.lattice.a:.1e}, "
+                  f"mu L = {mu.min() * model.lattice.L:.1e}") if mu.size else "no meson"
+        raise ValueError(
+            f"Sector energies would have an error of ~{model.H.precision:.0e} (condition number of M "
+            f"{model.H.condition:.0e}), too large to classify sectors; {scales}. Choose the coupling such that the "
+            f"meson is resolved: mu L >~ 1e-2 and mu a <~ 10 (e.g. g ~ 0.1 - 1 for a = 1).")
 
 
 def sector_state(model, n, m):
@@ -59,6 +77,7 @@ def sector_energy(model, NL, NR):
     Returns:
         SectorEnergy: gauge charges q (shape (k,)), E, Delta = E L/(2 pi), s = -P L/(2 pi).
     """
+    _require_precision(model)
     n, m = winding_momentum(NL, NR)
     c = model.H.conserved_charges.T @ sector_state(model, n, m)
     E, Delta, s = _sector(model, c)
@@ -80,6 +99,7 @@ def sector_scan(model, nmax=3, Delta_max=2.0):
     Returns:
         list[Sector]: Sorted by Delta, then by decreasing s.
     """
+    _require_precision(model)
     T = charge_map(model)
     scale = np.abs(T).max() if T.size else 1.0
     F = model.F

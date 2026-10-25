@@ -14,81 +14,82 @@
 \contentsline {paragraph}{Conserved linear charges.}{7}{section*.4}%
 \contentsline {paragraph}{Normal form with zero modes.}{7}{section*.5}%
 \contentsline {paragraph}{Lowest energy at fixed charges.}{8}{section*.6}%
-\contentsline {section}{\numberline {2.6}In code}{8}{section.2.6}%
-\contentsline {chapter}{\numberline {3}A free scalar field on a lattice}{9}{chapter.3}%
-\contentsline {section}{\numberline {3.1}The continuum theory}{9}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Discretization}{9}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Open chain with Dirichlet boundary conditions}{9}{section.3.3}%
-\contentsline {paragraph}{Ultraviolet behaviour.}{10}{section*.7}%
-\contentsline {section}{\numberline {3.4}The ring and its zero modes}{10}{section.3.4}%
-\contentsline {paragraph}{Compact fields and windings.}{10}{section*.8}%
-\contentsline {section}{\numberline {3.5}In code}{11}{section.3.5}%
-\contentsline {chapter}{\numberline {4}Fermions in one dimension and bosonization}{12}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Chiral fermions}{12}{section.4.1}%
-\contentsline {paragraph}{Spectrum on a ring.}{12}{section*.9}%
-\contentsline {section}{\numberline {4.2}The bosonization dictionary}{13}{section.4.2}%
-\contentsline {paragraph}{Fermion numbers are zero modes.}{13}{section*.10}%
-\contentsline {paragraph}{Check.}{13}{section*.11}%
-\contentsline {section}{\numberline {4.3}Many fermions and their charges}{13}{section.4.3}%
-\contentsline {chapter}{\numberline {5}Gauge fields in one dimension}{15}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Electric field and Gauss law}{15}{section.5.1}%
-\contentsline {paragraph}{On the lattice.}{15}{section*.12}%
-\contentsline {section}{\numberline {5.2}The Schwinger model}{16}{section.5.2}%
-\contentsline {paragraph}{General charges.}{16}{section*.13}%
-\contentsline {section}{\numberline {5.3}Spectra on the open chain}{16}{section.5.3}%
-\contentsline {paragraph}{Continuum limit.}{16}{section*.14}%
-\contentsline {section}{\numberline {5.4}Measuring the mass: the electric-field correlator}{16}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Probe charges: screening and confinement}{19}{section.5.5}%
-\contentsline {section}{\numberline {5.6}The theta angle}{19}{section.5.6}%
-\contentsline {section}{\numberline {5.7}In code}{20}{section.5.7}%
-\contentsline {chapter}{\numberline {6}Anomalies and global symmetries}{21}{chapter.6}%
-\contentsline {section}{\numberline {6.1}The anomaly on the lattice}{21}{section.6.1}%
-\contentsline {paragraph}{Several gauge fields.}{21}{section*.15}%
-\contentsline {paragraph}{A lattice subtlety for $k>1$.}{21}{section*.16}%
-\contentsline {section}{\numberline {6.2}Which global symmetries survive}{22}{section.6.2}%
-\contentsline {paragraph}{The lattice finds them by itself.}{22}{section*.17}%
-\contentsline {chapter}{\numberline {7}Charge sectors and the search for bound states}{23}{chapter.7}%
-\contentsline {section}{\numberline {7.1}The idea}{23}{section.7.1}%
-\contentsline {section}{\numberline {7.2}The lattice computation}{23}{section.7.2}%
-\contentsline {section}{\numberline {7.3}The analytic cross-check: the charge lattice}{24}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Worked example: the 3-4-5-0 model}{24}{section.7.4}%
-\contentsline {paragraph}{Comparison with the literature.}{25}{section*.18}%
-\contentsline {paragraph}{Volume dependence.}{26}{section*.19}%
-\contentsline {section}{\numberline {7.5}Testing your own theory}{26}{section.7.5}%
-\contentsline {paragraph}{Limitations.}{26}{section*.20}%
-\contentsline {chapter}{\numberline {A}Conventions and checks}{28}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Conventions}{28}{section.A.1}%
-\contentsline {section}{\numberline {A.2}What the test suite checks}{28}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Literature cross-check}{29}{section.A.3}%
-\contentsline {chapter}{\numberline {B}API reference}{30}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Conventions: \texttt {latsimpkg.\allowbreak {}conventions}}{30}{section.B.1}%
-\contentsline {section}{\numberline {B.2}Theories: \texttt {latsimpkg.\allowbreak {}theory}}{31}{section.B.2}%
-\contentsline {subsection}{\texttt {latsimpkg.theory.Pairing}}{31}{section*.25}%
-\contentsline {subsection}{\texttt {latsimpkg.theory.ChiralTheory}}{31}{section*.26}%
-\contentsline {section}{\numberline {B.3}Lattice: \texttt {latsimpkg.\allowbreak {}lattice}}{33}{section.B.3}%
-\contentsline {subsection}{\texttt {latsimpkg.lattice.Lattice}}{33}{section*.30}%
-\contentsline {section}{\numberline {B.4}Phase space: \texttt {latsimpkg.\allowbreak {}phasespace}}{34}{section.B.4}%
-\contentsline {subsection}{\texttt {latsimpkg.phasespace.Block}}{34}{section*.31}%
-\contentsline {subsection}{\texttt {latsimpkg.phasespace.PhaseSpace}}{34}{section*.32}%
-\contentsline {section}{\numberline {B.5}Quadratic Hamiltonians: \texttt {latsimpkg.\allowbreak {}quadratic}}{35}{section.B.5}%
-\contentsline {subsection}{\texttt {latsimpkg.quadratic.Tolerances}}{35}{section*.33}%
-\contentsline {subsection}{\texttt {latsimpkg.quadratic.QuadraticHamiltonian}}{36}{section*.34}%
-\contentsline {section}{\numberline {B.6}Gauge models: \texttt {latsimpkg.\allowbreak {}models.\allowbreak {}gauge}}{38}{section.B.6}%
-\contentsline {subsection}{\texttt {latsimpkg.models.gauge.GaugeModel}}{38}{section*.35}%
-\contentsline {section}{\numberline {B.7}Result types: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}results}}{41}{section.B.7}%
-\contentsline {subsection}{\texttt {latsimpkg.analysis.results.Sector}}{41}{section*.39}%
-\contentsline {subsection}{\texttt {latsimpkg.analysis.results.SectorEnergy}}{42}{section*.41}%
-\contentsline {subsection}{\texttt {latsimpkg.analysis.results.SectorScan}}{42}{section*.42}%
-\contentsline {subsection}{\texttt {latsimpkg.analysis.results.Spectrum}}{43}{section*.43}%
-\contentsline {subsection}{\texttt {latsimpkg.analysis.results.Series}}{43}{section*.44}%
-\contentsline {subsection}{\texttt {latsimpkg.analysis.results.FitWindow}}{43}{section*.45}%
-\contentsline {subsection}{\texttt {latsimpkg.analysis.results.FitResult}}{44}{section*.46}%
-\contentsline {subsection}{\texttt {latsimpkg.analysis.results.Potential}}{44}{section*.47}%
-\contentsline {section}{\numberline {B.8}Spectra: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}spectrum}}{45}{section.B.8}%
-\contentsline {section}{\numberline {B.9}Correlators: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}correlators}}{45}{section.B.9}%
-\contentsline {section}{\numberline {B.10}Potentials: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}potentials}}{46}{section.B.10}%
-\contentsline {section}{\numberline {B.11}Charge sectors: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}sectors}}{47}{section.B.11}%
-\contentsline {section}{\numberline {B.12}Charge lattice: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}charge\_lattice}}{48}{section.B.12}%
-\contentsline {section}{\numberline {B.13}User API: \texttt {latsimpkg.\allowbreak {}api}}{49}{section.B.13}%
-\contentsline {section}{\numberline {B.14}Plotting: \texttt {latsimpkg.\allowbreak {}plotting}}{50}{section.B.14}%
-\contentsline {chapter}{References}{52}{appendix*.78}%
+\contentsline {section}{\numberline {2.6}Numerical limits}{8}{section.2.6}%
+\contentsline {section}{\numberline {2.7}In code}{8}{section.2.7}%
+\contentsline {chapter}{\numberline {3}A free scalar field on a lattice}{10}{chapter.3}%
+\contentsline {section}{\numberline {3.1}The continuum theory}{10}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Discretization}{10}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Open chain with Dirichlet boundary conditions}{10}{section.3.3}%
+\contentsline {paragraph}{Ultraviolet behaviour.}{11}{section*.7}%
+\contentsline {section}{\numberline {3.4}The ring and its zero modes}{11}{section.3.4}%
+\contentsline {paragraph}{Compact fields and windings.}{11}{section*.8}%
+\contentsline {section}{\numberline {3.5}In code}{12}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Fermions in one dimension and bosonization}{13}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Chiral fermions}{13}{section.4.1}%
+\contentsline {paragraph}{Spectrum on a ring.}{13}{section*.9}%
+\contentsline {section}{\numberline {4.2}The bosonization dictionary}{14}{section.4.2}%
+\contentsline {paragraph}{Fermion numbers are zero modes.}{14}{section*.10}%
+\contentsline {paragraph}{Check.}{14}{section*.11}%
+\contentsline {section}{\numberline {4.3}Many fermions and their charges}{14}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Gauge fields in one dimension}{16}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Electric field and Gauss law}{16}{section.5.1}%
+\contentsline {paragraph}{On the lattice.}{16}{section*.12}%
+\contentsline {section}{\numberline {5.2}The Schwinger model}{17}{section.5.2}%
+\contentsline {paragraph}{General charges.}{17}{section*.13}%
+\contentsline {section}{\numberline {5.3}Spectra on the open chain}{17}{section.5.3}%
+\contentsline {paragraph}{Continuum limit.}{17}{section*.14}%
+\contentsline {section}{\numberline {5.4}Measuring the mass: the electric-field correlator}{17}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Probe charges: screening and confinement}{20}{section.5.5}%
+\contentsline {section}{\numberline {5.6}The theta angle}{20}{section.5.6}%
+\contentsline {section}{\numberline {5.7}In code}{21}{section.5.7}%
+\contentsline {chapter}{\numberline {6}Anomalies and global symmetries}{22}{chapter.6}%
+\contentsline {section}{\numberline {6.1}The anomaly on the lattice}{22}{section.6.1}%
+\contentsline {paragraph}{Several gauge fields.}{22}{section*.15}%
+\contentsline {paragraph}{A lattice subtlety for $k>1$.}{22}{section*.16}%
+\contentsline {section}{\numberline {6.2}Which global symmetries survive}{23}{section.6.2}%
+\contentsline {paragraph}{The lattice finds them by itself.}{23}{section*.17}%
+\contentsline {chapter}{\numberline {7}Charge sectors and the search for bound states}{24}{chapter.7}%
+\contentsline {section}{\numberline {7.1}The idea}{24}{section.7.1}%
+\contentsline {section}{\numberline {7.2}The lattice computation}{24}{section.7.2}%
+\contentsline {section}{\numberline {7.3}The analytic cross-check: the charge lattice}{25}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Worked example: the 3-4-5-0 model}{25}{section.7.4}%
+\contentsline {paragraph}{Comparison with the literature.}{26}{section*.18}%
+\contentsline {paragraph}{Volume dependence.}{27}{section*.19}%
+\contentsline {section}{\numberline {7.5}Testing your own theory}{27}{section.7.5}%
+\contentsline {paragraph}{Limitations.}{27}{section*.20}%
+\contentsline {chapter}{\numberline {A}Conventions and checks}{29}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Conventions}{29}{section.A.1}%
+\contentsline {section}{\numberline {A.2}What the test suite checks}{29}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Literature cross-check}{30}{section.A.3}%
+\contentsline {chapter}{\numberline {B}API reference}{31}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Conventions: \texttt {latsimpkg.\allowbreak {}conventions}}{31}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Theories: \texttt {latsimpkg.\allowbreak {}theory}}{32}{section.B.2}%
+\contentsline {subsection}{\texttt {latsimpkg.theory.Pairing}}{32}{section*.25}%
+\contentsline {subsection}{\texttt {latsimpkg.theory.ChiralTheory}}{32}{section*.26}%
+\contentsline {section}{\numberline {B.3}Lattice: \texttt {latsimpkg.\allowbreak {}lattice}}{34}{section.B.3}%
+\contentsline {subsection}{\texttt {latsimpkg.lattice.Lattice}}{34}{section*.30}%
+\contentsline {section}{\numberline {B.4}Phase space: \texttt {latsimpkg.\allowbreak {}phasespace}}{35}{section.B.4}%
+\contentsline {subsection}{\texttt {latsimpkg.phasespace.Block}}{35}{section*.31}%
+\contentsline {subsection}{\texttt {latsimpkg.phasespace.PhaseSpace}}{35}{section*.32}%
+\contentsline {section}{\numberline {B.5}Quadratic Hamiltonians: \texttt {latsimpkg.\allowbreak {}quadratic}}{36}{section.B.5}%
+\contentsline {subsection}{\texttt {latsimpkg.quadratic.Tolerances}}{36}{section*.33}%
+\contentsline {subsection}{\texttt {latsimpkg.quadratic.QuadraticHamiltonian}}{37}{section*.34}%
+\contentsline {section}{\numberline {B.6}Gauge models: \texttt {latsimpkg.\allowbreak {}models.\allowbreak {}gauge}}{39}{section.B.6}%
+\contentsline {subsection}{\texttt {latsimpkg.models.gauge.GaugeModel}}{40}{section*.35}%
+\contentsline {section}{\numberline {B.7}Result types: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}results}}{42}{section.B.7}%
+\contentsline {subsection}{\texttt {latsimpkg.analysis.results.Sector}}{43}{section*.40}%
+\contentsline {subsection}{\texttt {latsimpkg.analysis.results.SectorEnergy}}{43}{section*.42}%
+\contentsline {subsection}{\texttt {latsimpkg.analysis.results.SectorScan}}{44}{section*.43}%
+\contentsline {subsection}{\texttt {latsimpkg.analysis.results.Spectrum}}{44}{section*.44}%
+\contentsline {subsection}{\texttt {latsimpkg.analysis.results.Series}}{45}{section*.45}%
+\contentsline {subsection}{\texttt {latsimpkg.analysis.results.FitWindow}}{45}{section*.46}%
+\contentsline {subsection}{\texttt {latsimpkg.analysis.results.FitResult}}{45}{section*.47}%
+\contentsline {subsection}{\texttt {latsimpkg.analysis.results.Potential}}{46}{section*.48}%
+\contentsline {section}{\numberline {B.8}Spectra: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}spectrum}}{46}{section.B.8}%
+\contentsline {section}{\numberline {B.9}Correlators: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}correlators}}{47}{section.B.9}%
+\contentsline {section}{\numberline {B.10}Potentials: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}potentials}}{48}{section.B.10}%
+\contentsline {section}{\numberline {B.11}Charge sectors: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}sectors}}{49}{section.B.11}%
+\contentsline {section}{\numberline {B.12}Charge lattice: \texttt {latsimpkg.\allowbreak {}analysis.\allowbreak {}charge\_lattice}}{50}{section.B.12}%
+\contentsline {section}{\numberline {B.13}User API: \texttt {latsimpkg.\allowbreak {}api}}{51}{section.B.13}%
+\contentsline {section}{\numberline {B.14}Plotting: \texttt {latsimpkg.\allowbreak {}plotting}}{52}{section.B.14}%
+\contentsline {chapter}{References}{54}{appendix*.79}%

@@ -229,8 +229,21 @@ replaces `main.py` and writes all results to `results/` (git-ignored). 32 new te
    Tong's second symmetry H = (5,0|3,-4) is found among our conserved charges; gauging H reproduces Tong's IR Dirac
    fermion exactly (Psi = psi2, Psit = psi1^2 (psit1^dag)^2 psit2, G = +4 / -4); our 3-4-5-0 is its parity mirror.
    Documentation: comparison paragraph in chapter 7, potential in chapter 5, table in appendix A.
-4. **Stress tests of the base**, above all the mathematics: property-based tests (random symplectic matrices,
+4. ✅ **Stress tests of the base**, above all the mathematics: property-based tests (random symplectic matrices,
    random anomaly-free theories), time evolution vs. normal modes, invariances.
+   Done: `hypothesis` (dev dependency, deterministic default profile, `HYPOTHESIS_PROFILE=thorough` for 300 examples
+   per property); `tests/test_stress_core.py` (13 theorems of the Gaussian core), `tests/test_stress_models.py`
+   (15 properties of random anomaly-free theories), `tests/test_stress_edges.py` (24 edge cases).
+   Two real bugs found and fixed:
+   - zero-mode detection used a fixed relative threshold 1e-10, so weak couplings (g <~ 1e-5) were taken for extra
+     zero modes and gave wrong sectors. Now: zero below 1e-13, physical above 1e-11, ambiguous -> error; the model
+     builder passes the exact number of zero modes (`n_zero`, from the symmetries); `QuadraticHamiltonian.precision`
+     (condition * eps) guards the sector search, which raises with mu a / mu L instead of returning wrong sectors.
+   - on the ring the dual zero mode was the value of vartheta at site 0 instead of its average; this broke
+     translation invariance and gave wrong ring spectra for axial charges (sectors were unaffected). Now both zero
+     modes are averages, [varphi_j, vartheta_k] -> (i/2) sign(k - j), and the phi <-> vartheta duality is exact
+     (axial = vector Schwinger spectrum on the ring to 1e-15; every meson mass lies exactly in the ring spectrum).
+   Documentation updated (numerical limits, ring zero modes, test overview); 294 fast + 8 slow tests green.
 5. **Roadmap clean-up** (finished phases condensed), merge to `main`.
 
 ---

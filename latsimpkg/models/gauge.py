@@ -165,6 +165,21 @@ def choose_pairing(theory, order=None):
                      "(Q_L Q_R^T is not symmetric for any order of the right movers).")
 
 
+def expected_zero_modes(pairing, g, lattice):
+    """
+    Exact number of zero modes of M, known from the physics (passed to `QuadraticHamiltonian` as `n_zero`, so
+    that tiny couplings are not mistaken for zero modes):
+        open chain: 0 (Dirichlet ends pin every mode);
+        ring: the uniform shifts of varphi~ and vartheta-bar that leave every E_a unchanged,
+              Q^V_a . t_phi + Q^A_a . t_theta = 0 for every U(1)_a with g_a > 0, i.e. 2F - rank[Q^V | Q^A].
+    """
+    if not lattice.is_ring:
+        return 0
+    rows = np.hstack([pairing.QV, pairing.QA])[np.asarray(g) > 0]
+    rank = np.linalg.matrix_rank(rows) if rows.size else 0
+    return 2 * pairing.F - rank
+
+
 def _phasespace(F, lattice):
     blocks = [("phi", "P", (F, lattice.N))]
     if lattice.is_ring:
@@ -190,7 +205,12 @@ def _link_matrices(F, lattice, ps):
 def _electric_field_matrices(pairing, g, lattice, ps):
     N = lattice.N
     cumulative = np.tril(np.ones((N, N)))                         # vartheta = cumulative sum of P
-    j = np.arange(N)
+    j = np.arange(N) / N
+    if lattice.is_ring:
+        # zero modes are averages: vartheta-bar = mean of vartheta and varphi-bar = mean of varphi, so both
+        # parts are centred; this gives the translation-invariant [varphi_j, vartheta_k] = i (1(j<=k) - 1/2 - 1/2N)
+        cumulative = cumulative - cumulative.mean(axis=0)
+        j = j - j.mean()
     C = np.zeros((len(g), N, ps.dim))
     for a in range(len(g)):
         for i in range(pairing.F):
@@ -198,7 +218,7 @@ def _electric_field_matrices(pairing, g, lattice, ps):
             C[a][:, ps.slice("phi", i)] += QV * np.eye(N)
             C[a][:, ps.slice("P", i)] += QA * cumulative
             if lattice.is_ring:
-                C[a][:, ps.index("W", i)] += QV * j / N          # winding part of varphi
+                C[a][:, ps.index("W", i)] += QV * j              # winding part of varphi
                 C[a][:, ps.index("theta_bar", i)] += QA        # dual zero mode
         C[a] *= g[a] / SQRT_PI
     return C
@@ -226,9 +246,14 @@ def build_gauge_model(theory, lattice, theta=None, external_charges=None, pairin
     Build the lattice Hamiltonian of a bosonized U(1)^k gauge theory.
 
     Ring: besides varphi~_{i,j}, P_{i,j} every flavor gets the dual zero mode vartheta-bar_i with conjugate
-    W_i = sqrt(pi) n_i ([vartheta-bar_i, W_i] = i); varphi_{i,j} = varphi~_{i,j} + W_i j/N and
-    vartheta_{i,j} = vartheta-bar_i + sum_{k<=j} P_{i,k}, giving [varphi_j, vartheta_k] = i (1(j <= k) - j/N).
-    The winding and the total momentum are the fermion numbers (see `conventions`).
+    W_i = sqrt(pi) n_i ([vartheta-bar_i, W_i] = i). In the electric field
+        varphi_{i,j}   = varphi~_{i,j} + W_i (j/N - <j/N>),
+        vartheta_{i,j} = vartheta-bar_i + sum_{k<=j} P_{i,k} - <sum_{k<=j} P_{i,k}>_j,
+    with <.> the average over the sites: vartheta-bar is the average of vartheta (it commutes with the
+    fluctuations of varphi), which makes the ring translation invariant,
+        [varphi_j, vartheta_k] = i (1(j <= k) - 1/2 - 1/(2N))   ->   (i/2) sign(k - j).
+    (Taking vartheta-bar as the value at site 0 instead couples it to all momentum modes and spoils the
+    spectrum for axial charges.) The winding and the total momentum are the fermion numbers (see `conventions`).
 
     Args:
         theory (ChiralTheory): Charges and couplings.
@@ -263,7 +288,8 @@ def build_gauge_model(theory, lattice, theta=None, external_charges=None, pairin
     linear = a * np.einsum("aj,ajd->d", e, C)
     constant = 0.5 * a * float(np.sum(e**2))
 
-    H = QuadraticHamiltonian(M, ps) if tol is None else QuadraticHamiltonian(M, ps, tol)
+    n_zero = expected_zero_modes(pairing, theory.g, lattice)
+    H = QuadraticHamiltonian(M, ps, n_zero=n_zero) if tol is None else QuadraticHamiltonian(M, ps, tol, n_zero=n_zero)
     for arr in (C, B, e, linear):
         arr.setflags(write=False)
     return GaugeModel(theory, lattice, pairing, ps, H, C, B, e, linear, constant)

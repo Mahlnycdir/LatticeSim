@@ -1068,4 +1068,5 @@ INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmsy8.pfb
 INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmtk10.pfb
 INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmtt10.pfb
 INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmtti10.pfb
+INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb
 INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb

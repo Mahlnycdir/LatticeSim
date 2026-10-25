@@ -84,6 +84,7 @@
 \newcommand{\latsimfigure}[1]{\IfFileExists{generated/figures/#1.tex}{\input{generated/figures/#1.tex}}{%
   \begin{figure}[tbp]\centering\missingfigure{#1}{python tools/build\_docs.py}\caption{(missing)}\end{figure}}}
 
+\setlength{\emergencystretch}{2em}   % long identifiers without break points: stretch lines instead of overfull boxes
 \setcounter{tocdepth}{1}
 \numberwithin{equation}{chapter}
 

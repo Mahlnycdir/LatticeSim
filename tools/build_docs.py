@@ -74,6 +74,7 @@ def inline(text):
     for i, part in enumerate(parts):
         if i % 2:
             code = escape(part).replace(r"\_", r"\_\allowbreak{}").replace(".", r".\allowbreak{}")
+            code = re.sub(r"(?<=[a-z])(?=[A-Z])", r"\\allowbreak{}", code)        # CamelCase break points
             out.append(r"\texttt{" + code + "}")
         else:
             out.append(escape(part))

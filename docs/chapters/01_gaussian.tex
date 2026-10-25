@@ -158,6 +158,21 @@ covariance with zero
 modes, \code{.covariance}, describes the oscillators at sharp conserved charges; the flat directions themselves
 have infinite variance.
 
+\section{Numerical limits}\label{sec:numerics}
+Deciding which eigenvalues of $M$ are zero is a numerical question. Rounding errors of an eigenvalue are of the
+order $\epsilon\max|M|$ with $\epsilon\approx2\times10^{-16}$, so a physical eigenvalue much smaller than that is
+indistinguishable from a zero mode. \code{QuadraticHamiltonian} treats relative eigenvalues below $10^{-13}$ as zero
+and above $10^{-11}$ as physical; in between it does not guess but raises an error, unless the exact number of zero
+modes is passed as \code{n_zero}. The lattice models always pass it, because it is known from the symmetries: no zero
+modes on the open chain, and on the ring one per conserved charge (\cref{chap:anomalies}).
+
+The second limit concerns everything that inverts $M$ (constrained minima, the covariance). Its relative accuracy
+is about the condition number times $\epsilon$ (\code{QuadraticHamiltonian.precision}). A small mass term, for
+example $g^2/\pi$ for a weak coupling, next to gradient terms of order one loses its digits already when $M$ is
+assembled, and no algorithm can recover them. The sector search therefore refuses to run when the expected error
+of $\Delta$ exceeds $10^{-6}$ and reports $\mu a$ and $\mu L$; in practice the meson must be resolved,
+$\mu L\gtrsim10^{-2}$ and $\mu a\lesssim10$. Within this window the results are exact to $10^{-12}$ or better.
+
 \section{In code}
 \begin{python}
 import numpy as np

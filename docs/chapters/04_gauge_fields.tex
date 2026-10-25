@@ -35,8 +35,17 @@ $\int^x\Pi$) the electric field on site $j$ is a linear function of $\X$,
   E_j = \frac{g}{\sqrt\pi}\sum_i\Bigl(Q^V_i\varphi_{i,j} + Q^A_i\sum_{k\leq j}P_{i,k}\Bigr) + e_j ,
 \end{equation}
 and the electric energy $\frac a2\sum_jE_j^2$ adds $aC^TC$ to the matrix $M$ (plus a linear term and a constant
-if $e\neq0$). On the ring the zero modes enter as well:
-$\varphi_{i,j} = \tilde\varphi_{i,j} + W_ij/N$ and $\vartheta_{i,j} = \bar\vartheta_i + \sum_{k\leq j}P_{i,k}$.
+if $e\neq0$). On the ring the zero modes enter as well. Both zero modes are defined as \emph{averages} over the
+ring, so the slope of the winding and the cumulative sum are centred:
+\begin{equation}
+  \varphi_{i,j} = \tilde\varphi_{i,j} + W_i\Bigl(\frac jN - \Bigl\langle\frac jN\Bigr\rangle\Bigr),\qquad
+  \vartheta_{i,j} = \bar\vartheta_i + \sum_{k\leq j}P_{i,k} - \Bigl\langle\sum_{k\leq j}P_{i,k}\Bigr\rangle_j .
+\end{equation}
+Then $\comm{\varphi_j}{\vartheta_k} = i\bigl(\mathbb{1}(j\leq k) - \frac12 - \frac1{2N}\bigr)\to\frac i2\operatorname{sign}(k-j)$,
+the translation-invariant commutator of the compact boson, and the duality $\varphi\leftrightarrow\vartheta$ holds
+exactly on the lattice: the axial and the vector Schwinger model have identical spectra $\sqrt{\mu^2+k^2}$ on the ring.
+(Choosing $\bar\vartheta$ as the value at the first site instead couples it to all momentum modes and spoils the
+spectrum for axial charges; the stress tests found and now guard against exactly this.)
 
 \section{The Schwinger model}
 The Schwinger model~\cite{Schwinger1962,LowensteinSwieca1971} is a single Dirac fermion with charge $1$

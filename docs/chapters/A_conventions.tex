@@ -37,6 +37,12 @@ The library is tested against analytic results (\code{pytest}; \code{pytest -m s
     $U(1)^2$ examples;
   \item invariances: pairing, flavor permutation, charge conjugation;
   \item literature: the values of \cref{sec:literature};
+  \item stress tests (property-based, \code{hypothesis}): the theorems of \cref{chap:gaussian} on random Hamiltonians
+    with frequencies over four orders of magnitude and random symplectic transformations (normal form, purity,
+    stationarity under time evolution, symplectic invariance, scaling, direct sums, constrained minima); random
+    anomaly-free theories (zero modes, commuting electric fields, meson mass in the ring spectrum, conserved charges
+    $=$ anomaly-free symmetries, lattice $=$ charge lattice, independence of $g$, $N$, pairing and charge conjugation);
+    couplings over twelve orders of magnitude are either exact or rejected with an explanation;
   \item infrastructure: saving and loading of all results, plotting without global state, incremental figures.
 \end{itemize}
 
