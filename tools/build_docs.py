@@ -339,17 +339,36 @@ def ensure_figures(run_studies):
 # ----------------------------------------------------------------------
 # build
 # ----------------------------------------------------------------------
-def build_pdf():
+AUX_SUFFIXES = (".aux", ".out", ".toc", ".fdb_latexmk", ".fls")
+
+
+def remove_aux_files(build=None):
+    """Delete LaTeX auxiliary files; a truncated .out/.aux from an interrupted run breaks the next run."""
+    build = BUILD if build is None else build
+    for suffix in AUX_SUFFIXES:
+        (build / f"{MAIN}{suffix}").unlink(missing_ok=True)
+
+
+def build_pdf(run=subprocess.run):
+    """
+    latexmk -> docs/build/latticesim.pdf. If LaTeX fails, the auxiliary files are removed and the build is
+    retried once (stale or truncated auxiliary files, e.g. the bookmark file of an interrupted run, are a known
+    cause of spurious failures); a second failure is reported with the end of the log.
+    """
     if shutil.which("latexmk") is None:
         sys.exit("latexmk not found (install MacTeX or TeX Live); the .tex files are in docs/.")
     BUILD.mkdir(parents=True, exist_ok=True)
     cmd = ["latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", f"-outdir={BUILD}", f"{MAIN}.tex"]
-    result = subprocess.run(cmd, cwd=DOCS, capture_output=True, text=True)
-    if result.returncode:
-        log = BUILD / f"{MAIN}.log"
-        tail = log.read_text(errors="replace").splitlines()[-40:] if log.exists() else result.stdout.splitlines()[-40:]
-        sys.exit("LaTeX failed:\n" + "\n".join(tail))
-    return BUILD / f"{MAIN}.pdf"
+    for attempt in (1, 2):
+        result = run(cmd, cwd=DOCS, capture_output=True, text=True)
+        if not result.returncode:
+            return BUILD / f"{MAIN}.pdf"
+        if attempt == 1:
+            print("  LaTeX failed, retrying once with fresh auxiliary files ...")
+            remove_aux_files()
+    log = BUILD / f"{MAIN}.log"
+    tail = log.read_text(errors="replace").splitlines()[-40:] if log.exists() else result.stdout.splitlines()[-40:]
+    sys.exit("LaTeX failed:\n" + "\n".join(tail))
 
 
 def main(argv=None):

@@ -169,8 +169,9 @@ modes on the open chain, and on the ring one per conserved charge (\cref{chap:an
 The second limit concerns everything that inverts $M$ (constrained minima, the covariance). Its relative accuracy
 is about the condition number times $\epsilon$ (\code{QuadraticHamiltonian.precision}). A small mass term, for
 example $g^2/\pi$ for a weak coupling, next to gradient terms of order one loses its digits already when $M$ is
-assembled, and no algorithm can recover them. The sector search therefore refuses to run when the expected error
-of $\Delta$ exceeds $10^{-6}$ and reports $\mu a$ and $\mu L$; in practice the meson must be resolved,
+assembled, and no algorithm can recover them. Measured over 210 lattice models, the actual error of the sector
+energies $\Delta$ stayed within a factor 5 of this estimate; the sector search therefore refuses to run unless ten
+times the estimate is below the classification tolerance $10^{-6}$, and reports $\mu a$ and $\mu L$; in practice the meson must be resolved,
 $\mu L\gtrsim10^{-2}$ and $\mu a\lesssim10$. Within this window the results are exact to $10^{-12}$ or better.
 
 \section{In code}

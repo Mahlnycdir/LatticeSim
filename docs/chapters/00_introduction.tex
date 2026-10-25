@@ -55,7 +55,8 @@ scan = find_bound_states(theory)
 
 print(scan.agrees)                 # lattice and analytic prediction agree
 for s in scan.bound_states:
-    print(s.content, s.h, s.hb)    # psi_3L^2 psi_4L psi_5R^-2   0.5  0.0
+    print(s.content, s.h, s.hb)    # psi_3L^-2 psi_4L^-1 psi_5R^2   0.5  0.0  (antiparticle)
+                                   # psi_3L^2 psi_4L psi_5R^-2      0.5  0.0
 \end{python}
 Studies, figures and this document:
 \begin{shell}

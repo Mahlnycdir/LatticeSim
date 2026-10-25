@@ -16,9 +16,13 @@ from latsimpkg.analysis.results import SectorEnergy
 from latsimpkg.conventions import SQRT_PI, winding_momentum
 
 
-# Sector energies Delta are classified with tolerance 1e-6 (`classify_sector`); refuse to compute them if the
-# expected rounding error of the model (`QuadraticHamiltonian.precision`) reaches this level.
-MAX_SECTOR_ERROR = 1e-6
+# Sector energies Delta are classified with tolerance 1e-6 (`classify_sector`). The estimate
+# `QuadraticHamiltonian.precision` = cond(M) eps was within a factor 5 of the measured error of Delta in 210
+# lattice models (9 theories, g = 1e-6.5 ... 1e-2, N = 17 ... 40); with a safety factor 10 the search refuses to
+# run unless 10 * precision < 1e-6.
+SECTOR_TOLERANCE = 1e-6
+PRECISION_SAFETY = 10.0
+MAX_SECTOR_ERROR = SECTOR_TOLERANCE / PRECISION_SAFETY
 
 
 def _require_ring(model):
@@ -34,7 +38,7 @@ def _require_precision(model):
         scales = (f"mu a = {mu.min() * model.lattice.a:.1e} ... {mu.max() * model.lattice.a:.1e}, "
                   f"mu L = {mu.min() * model.lattice.L:.1e}") if mu.size else "no meson"
         raise ValueError(
-            f"Sector energies would have an error of ~{model.H.precision:.0e} (condition number of M "
+            f"Sector energies would have an error of up to ~{PRECISION_SAFETY * model.H.precision:.0e} (condition number of M "
             f"{model.H.condition:.0e}), too large to classify sectors; {scales}. Choose the coupling such that the "
             f"meson is resolved: mu L >~ 1e-2 and mu a <~ 10 (e.g. g ~ 0.1 - 1 for a = 1).")
 

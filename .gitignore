@@ -8,3 +8,7 @@ results/
 figures/
 docs/build/
 docs/generated/
+build/
+*.log
+*.fdb_latexmk 
+*.synctex.gz

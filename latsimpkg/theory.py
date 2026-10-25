@@ -16,6 +16,15 @@ def _readonly(x):
     return x
 
 
+def _default_names(Q, chirality):
+    """psi_3L, psi_4L, ... for one U(1) (psi_1L_0, psi_1L_1 if charges repeat); L0, L1, ... for U(1)^k."""
+    n = Q.shape[1]
+    if Q.shape[0] != 1:
+        return [f"{chirality}{i}" for i in range(n)]
+    names = [f"psi_{q:g}{chirality}" for q in Q[0]]
+    return [f"{name}_{i}" if names.count(name) > 1 else name for i, name in enumerate(names)]
+
+
 @dataclass(frozen=True)
 class Pairing:
     """
@@ -63,7 +72,8 @@ class ChiralTheory:
         QL (array_like): Left charges, shape (k, n_L) or (n_L,) for k = 1.
         QR (array_like): Right charges, shape (k, n_R) or (n_R,) for k = 1.
         g (float | array_like): Couplings, one per U(1) (a scalar is used for all).
-        names (tuple, optional): (names of the left movers, names of the right movers).
+        names (tuple, optional): (names of the left movers, names of the right movers). For one U(1) the
+            default names follow the charges, e.g. psi_3L, psi_5R (with an index if charges repeat); for U(1)^k: L0, R0, ...
         allow_anomalous (bool, optional): Accept a gauge anomaly. Defaults to False.
         allow_fractional (bool, optional): Accept non-integer charges. Defaults to False.
 
@@ -106,7 +116,7 @@ class ChiralTheory:
 
         self.QL, self.QR, self.g = _readonly(QL), _readonly(QR), _readonly(g)
         if names is None:
-            names = ([f"L{i}" for i in range(self.n_L)], [f"R{j}" for j in range(self.n_R)])
+            names = (_default_names(self.QL, "L"), _default_names(self.QR, "R"))
         names_L, names_R = (tuple(str(x) for x in part) for part in names)
         if len(names_L) != self.n_L or len(names_R) != self.n_R:
             raise ValueError("names must contain one name per left and per right mover.")

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.20)  25 OCT 2026 15:19
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.20)  25 OCT 2026 15:42
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -596,11 +596,11 @@ File: lstlang1.sty 2020/03/24 1.8d listings language file
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
 (Font)              Font shape `T1/lmtt/b/n' tried instead on input line 51.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 71.
+(Font)              <10> on input line 72.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 71.
+(Font)              <7> on input line 72.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 71.
+(Font)              <5> on input line 72.
 ) (./chapters/01_gaussian.tex [4]
 Chapter 2.
 [5
@@ -614,7 +614,7 @@ Chapter 3.
 [10
 
 ] (./generated/figures/free_chain_spectrum.tex
-<../figures/free_chain_spectrum.pdf, id=460, 326.91637pt x 216.24199pt>
+<../figures/free_chain_spectrum.pdf, id=461, 326.91637pt x 216.24199pt>
 File: ../figures/free_chain_spectrum.pdf Graphic file (type pdf)
 <use ../figures/free_chain_spectrum.pdf>
 Package pdftex.def Info: ../figures/free_chain_spectrum.pdf  used on input line 3.
@@ -628,31 +628,31 @@ Chapter 5.
 [16
 
 ] (./generated/figures/spectra_open_chain.tex
-<../figures/spectra_open_chain.pdf, id=618, 319.24709pt x 216.24199pt>
+<../figures/spectra_open_chain.pdf, id=619, 319.24709pt x 216.24199pt>
 File: ../figures/spectra_open_chain.pdf Graphic file (type pdf)
 <use ../figures/spectra_open_chain.pdf>
 Package pdftex.def Info: ../figures/spectra_open_chain.pdf  used on input line 3.
 (pdftex.def)             Requested size: 368.63693pt x 249.7157pt.
 ) (./generated/figures/finite_size_scaling.tex
-<../figures/finite_size_scaling.pdf, id=619, 341.1506pt x 218.17107pt>
+<../figures/finite_size_scaling.pdf, id=620, 341.1506pt x 218.17107pt>
 File: ../figures/finite_size_scaling.pdf Graphic file (type pdf)
 <use ../figures/finite_size_scaling.pdf>
 Package pdftex.def Info: ../figures/finite_size_scaling.pdf  used on input line 3.
 (pdftex.def)             Requested size: 368.63693pt x 235.76439pt.
 ) (./generated/figures/continuum_limit.tex
-<../figures/continuum_limit.pdf, id=622, 346.33208pt x 218.17107pt>
+<../figures/continuum_limit.pdf, id=623, 346.33208pt x 218.17107pt>
 File: ../figures/continuum_limit.pdf Graphic file (type pdf)
 <use ../figures/continuum_limit.pdf>
 Package pdftex.def Info: ../figures/continuum_limit.pdf  used on input line 3.
 (pdftex.def)             Requested size: 368.63693pt x 232.2323pt.
 ) (./generated/figures/correlator_fits.tex
-<../figures/correlator_fits.pdf, id=626, 320.25084pt x 216.24199pt>
+<../figures/correlator_fits.pdf, id=627, 320.25084pt x 216.24199pt>
 File: ../figures/correlator_fits.pdf Graphic file (type pdf)
 <use ../figures/correlator_fits.pdf>
 Package pdftex.def Info: ../figures/correlator_fits.pdf  used on input line 3.
 (pdftex.def)             Requested size: 368.63693pt x 248.9106pt.
 ) [17] [18 <../figures/spectra_open_chain.pdf> <../figures/finite_size_scaling.pdf>] [19 <../figures/continuum_limit.pdf> <../figures/correlator_fits.pdf>] (./generated/figures/probe_potentials.tex
-<../figures/probe_potentials.pdf, id=976, 323.11986pt x 217.44128pt>
+<../figures/probe_potentials.pdf, id=977, 323.11986pt x 217.44128pt>
 File: ../figures/probe_potentials.pdf Graphic file (type pdf)
 <use ../figures/probe_potentials.pdf>
 Package pdftex.def Info: ../figures/probe_potentials.pdf  used on input line 3.
@@ -672,7 +672,7 @@ Package microtype Info: Character `texttrademark ' is missing
 ) (./chapters/05_anomalies.tex [21]
 Chapter 6.
 (./generated/figures/anomalous_commutator.tex
-<../figures/anomalous_commutator.pdf, id=1078, 338.60065pt x 221.09802pt>
+<../figures/anomalous_commutator.pdf, id=1079, 338.60065pt x 221.09802pt>
 File: ../figures/anomalous_commutator.pdf Graphic file (type pdf)
 <use ../figures/anomalous_commutator.pdf>
 Package pdftex.def Info: ../figures/anomalous_commutator.pdf  used on input line 3.
@@ -684,13 +684,13 @@ Chapter 7.
 [24
 
 ] (./generated/figures/sectors_3450.tex
-<../figures/sectors_3450.pdf, id=1182, 272.08098pt x 279.37384pt>
+<../figures/sectors_3450.pdf, id=1183, 272.08098pt x 279.37384pt>
 File: ../figures/sectors_3450.pdf Graphic file (type pdf)
 <use ../figures/sectors_3450.pdf>
 Package pdftex.def Info: ../figures/sectors_3450.pdf  used on input line 3.
 (pdftex.def)             Requested size: 368.63693pt x 378.5409pt.
  [25]) [26 <../figures/sectors_3450.pdf>] (./generated/figures/sector_volume_dependence.tex
-<../figures/sector_volume_dependence.pdf, id=1273, 320.51746pt x 216.07927pt>
+<../figures/sector_volume_dependence.pdf, id=1274, 320.51746pt x 216.07927pt>
 File: ../figures/sector_volume_dependence.pdf Graphic file (type pdf)
 <use ../figures/sector_volume_dependence.pdf>
 Package pdftex.def Info: ../figures/sector_volume_dependence.pdf  used on input line 3.
@@ -728,18 +728,18 @@ Package rerunfilecheck Info: File `latticesim.out' has not changed.
 (rerunfilecheck)             Checksum: F5FA520E4FC0160BD60823AB44D330DF;12358.
  ) 
 Here is how much of TeX's memory you used:
- 18559 strings out of 478268
- 305271 string characters out of 5846347
- 917672 words of memory out of 5000000
+ 18560 strings out of 478268
+ 305285 string characters out of 5846347
+ 927672 words of memory out of 5000000
  35794 multiletter control sequences out of 15000+600000
  594105 words of font info for 266 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  60i,14n,63p,1039b,1993s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}</usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmmi5.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmmi7.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmmib10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmr5.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmr7.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmri10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmtk10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/lm/lmtti10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on latticesim.pdf (55 pages, 775085 bytes).
+Output written on latticesim.pdf (55 pages, 775574 bytes).
 PDF statistics:
- 1722 PDF objects out of 1728 (max. 8388607)
- 1142 compressed objects within 12 object streams
- 341 named destinations out of 1000 (max. 500000)
+ 1723 PDF objects out of 1728 (max. 8388607)
+ 1143 compressed objects within 12 object streams
+ 342 named destinations out of 1000 (max. 500000)
  70158 words of extra memory for PDF output out of 74296 (max. 10000000)
 

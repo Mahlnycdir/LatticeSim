@@ -166,6 +166,37 @@ def test_write_figures_with_present_and_missing_pdf(bd, tmp_path):
     assert r"\missingfigure{b}" in b and "python -m studies s" in b
 
 
+def test_build_retries_once_with_fresh_aux_files(bd, tmp_path, monkeypatch):
+    """A failing first LaTeX run is retried after deleting the auxiliary files; the second result counts."""
+    monkeypatch.setattr(bd, "BUILD", tmp_path)
+    monkeypatch.setattr(bd.shutil, "which", lambda name: "/usr/bin/" + name)
+    (tmp_path / f"{bd.MAIN}.out").write_text("\\BOOKMARK [1][-]{truncated")
+    calls = []
+
+    class Result:
+        def __init__(self, code):
+            self.returncode, self.stdout = code, ""
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return Result(1 if len(calls) == 1 else 0)
+
+    assert bd.build_pdf(run=fake_run) == tmp_path / f"{bd.MAIN}.pdf"
+    assert len(calls) == 2 and not (tmp_path / f"{bd.MAIN}.out").exists()
+
+
+def test_build_reports_a_persistent_failure(bd, tmp_path, monkeypatch):
+    monkeypatch.setattr(bd, "BUILD", tmp_path)
+    monkeypatch.setattr(bd.shutil, "which", lambda name: "/usr/bin/" + name)
+    (tmp_path / f"{bd.MAIN}.log").write_text("! Some LaTeX error.\nl.1 ...")
+
+    class Result:
+        returncode, stdout = 1, ""
+
+    with pytest.raises(SystemExit, match="Some LaTeX error"):
+        bd.build_pdf(run=lambda cmd, **kwargs: Result())
+
+
 @pytest.mark.slow
 @pytest.mark.skipif(shutil.which("latexmk") is None, reason="latexmk not installed")
 def test_documentation_builds_without_warnings():
