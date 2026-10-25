@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 
 from latsimpkg.base import LatticeHamiltonian
 
-class ScalarFieldTheory(LatticeHamiltonian):
+class ScalarFieldGaugeTheory(LatticeHamiltonian):
     """
     The bosonized U(1) gauge theory on a spatial lattice (vector-axial form).
     Every Dirac fermion i is replaced by a compact boson varphi_i that carries

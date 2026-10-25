@@ -1,4 +1,4 @@
-from latsimpkg.scalar import ScalarFieldTheory
+from latsimpkg.scalar import ScalarFieldGaugeTheory
 import numpy as np
 
 
@@ -15,14 +15,14 @@ MODELS = [("Schwinger (vector)", [1], [0]),
 
 def gauged_model(QV, QA, N, g, a=1.0):
     """Gauged model with the full Hamiltonian already built."""
-    model = ScalarFieldTheory(N, a, g, QV, QA)
+    model = ScalarFieldGaugeTheory(N, a, g, QV, QA)
     model.add_interacting_hamiltonian_matrix()
     return model
 
 
 def free_modes(N, a=1.0):
     """Frequencies of a single free Dirichlet chain."""
-    free = ScalarFieldTheory(N, a)
+    free = ScalarFieldGaugeTheory(N, a)
     free.free_hamiltonian_matrix()
     return free.normal_modes()
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     N = 50
     a = 0.001
 
-    sc = ScalarFieldTheory(N, a)
+    sc = ScalarFieldGaugeTheory(N, a)
     sc.free_hamiltonian_matrix()
 
     section(f"1. Free scalar field (N = {N}, a = {a})")
@@ -125,7 +125,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     section("6. Anomalous charges: [E_j, E_k] = i (g^2/pi) (Q^V.Q^A) sign(k - j)")
     for QV, QA in [([1, 1], [1, 0]), ([1, 1], [1, 1]), ([2, 1], [1, 0]), (QV_3450, QA_3450)]:
-        m = ScalarFieldTheory(60, 1.0, g, QV, QA)
+        m = ScalarFieldGaugeTheory(60, 1.0, g, QV, QA)
         comm = np.abs(m.electric_field_commutator()).max()
         pred = g**2 / np.pi * abs(np.dot(QV, QA))
         print(f"  Q^V = {str(QV):8s} Q^A = {str(QA):8s}  max|[E,E]| = {comm:.3e}   prediction = {pred:.3e}")
