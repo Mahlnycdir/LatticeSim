@@ -1,0 +1,126 @@
+\chapter{Charge sectors and the search for bound states}\label{chap:bound}
+
+We now have all ingredients to answer the question of the introduction: which gauge-invariant particles does a
+theory contain? After the gauge field has given a mass to some combinations of the bosons, the remaining
+massless bosons are compact, and their charge sectors are the low-energy particles. Some of them are the original
+fermions, others are \emph{composites}: gauge-invariant bound states of several fermions. The search is
+implemented in \code{find_bound_states}.
+
+\section{The idea}
+A state with fermion numbers $N_L = (N_{L,1},\dots)$ and $N_R = (N_{R,1},\dots)$ carries gauge charge
+\begin{equation}
+  q_a = Q_{L,a}\cdot N_L + Q_{R,a}\cdot N_R = Q^V_a\cdot n + Q^A_a\cdot m ,
+\end{equation}
+with $n = N_L + N_R$ and $m = N_L - N_R$. On a ring the Gauss law $\oint\partial_xE = gq = 0$ allows only
+\emph{neutral} sectors, $q_a = 0$ for all $a$. Neutral combinations of charged fermions are candidates for bound
+states. Whether such a sector really contains a light particle is decided by its energy: on a ring of length $L$
+a massless particle has energy $E\propto1/L$, so
+\begin{equation}
+  \Delta = \frac{EL}{2\pi} = h + \bar h
+\end{equation}
+stays finite as $L\to\infty$ for a massless sector, while a sector that only contains massive excitations does not
+produce a $1/L$ level at all.
+
+\section{The lattice computation}
+On the ring every flavor has the zero modes $W_i = \sqrt\pi n_i$ and $P_{{\rm tot},i} = \sqrt\pi m_i$
+(\cref{sec:ring}). The gauge field couples some combinations of them to the massive meson, so they are no longer
+conserved; the conserved charges are the kernel directions of $MJ$, i.e.\ the anomaly-free global symmetries of
+\cref{chap:anomalies}. The algorithm is:
+\begin{enumerate}
+  \item Build the ring Hamiltonian $M$ (\code{build_gauge_model} with \code{boundary="ring"}) and its conserved
+    charges $A$ (\cref{sec:zero-modes}).
+  \item For every neutral $(N_L,N_R)$ with $|N|\leq n_{\max}$: the configuration $\X_v$ with
+    $W_i = \sqrt\pi n_i$, $P_{i,j} = \sqrt\pi m_i/N$ has conserved charges $\vect{c} = A^T\X_v$.
+  \item Vectors with the same $\vect{c}$ are the same sector (they differ by excitations of the massive meson); keep
+    the representative with the smallest $|N_L|^2 + |N_R|^2$.
+  \item The lowest energy in the sector is $E = \frac12\vect{c}^TG\vect{c}$ \eqref{eq:constrained-minimum}: only
+    the conserved charges are fixed, all other directions relax into the massive mode. The spin follows from the
+    lattice momentum of the minimizing configuration, $s = -PL/2\pi$.
+  \item Classify: $\Delta = |s| = \frac12$ is a single massless fermion; it is \emph{elementary} if the
+    representative is one of the original fermions and a \emph{bound state} otherwise. All other sectors are
+    multi-particle states.
+\end{enumerate}
+Because the zero-mode energies are exact on the lattice (\cref{chap:bosonization}), $\Delta$ is independent of $N$
+and of $g>0$: the result is not an extrapolation.
+
+\section{The analytic cross-check: the charge lattice}
+The same answer follows from a short argument. The gauge fields give a mass to the combinations
+$Q_{L,a}\cdot\varphi_L$ and $Q_{R,a}\cdot\varphi_R$ of the left- and right-moving bosons. What remains massless is
+the part of $(N_L, N_R)$ orthogonal to the row spaces of $Q_L$ and $Q_R$:
+\begin{equation}\label{eq:charge-lattice}
+  h = \tfrac12\bigl|N_L^\perp\bigr|^2,\qquad \bar h = \tfrac12\bigl|N_R^\perp\bigr|^2,\qquad
+  s = h - \bar h = \tfrac12\bigl(|N_L|^2 - |N_R|^2\bigr),
+\end{equation}
+for neutral $(N_L,N_R)$; the last equality uses neutrality. These vectors form the \emph{charge lattice} of the
+low-energy theory (\code{analysis.charge_lattice}). \code{find_bound_states} computes both and reports whether
+they agree (\code{SectorScan.agrees}).
+
+\section{Worked example: the 3-4-5-0 model}
+The 3-4-5-0 model~\cite{WangWen2019,Tong2022} has two left movers with charges $3,4$ and two right movers with
+charges $5,0$ under one $U(1)$.
+\begin{description}[leftmargin=1.5em,style=nextline]
+  \item[Anomaly] $3^2 + 4^2 = 25 = 5^2 + 0^2$: consistent, although no fermion is vector-like.
+  \item[Pairing] $(3,5)$ and $(4,0)$: $Q^V = (4,2)$, $Q^A = (-1,2)$; indeed $Q^V\cdot Q^A = 0$.
+  \item[Meson] $\mu^2 = \frac{g^2}{2\pi}(9 + 16 + 25 + 0) = \frac{25g^2}{\pi}$, one massive and one massless boson.
+  \item[Global symmetries] four fermion numbers, one condition \eqref{eq:mixed}: three conserved charges, one of
+    them the gauge charge.
+\end{description}
+The search over $|N|\leq3$, $\Delta\leq2$ finds twelve sectors, in exact agreement with the charge lattice
+(\cref{fig:sectors_3450}):
+\begin{center}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+$N_L$ & $N_R$ & $(h,\bar h)$ & kind & content \\
+\midrule
+$(2,1)$ & $(-2,0)$ & $(\frac12,0)$ & bound state & $\psi_{3L}^2\psi_{4L}\psi_{5R}^{-2}$ \\
+$(-2,-1)$ & $(2,0)$ & $(\frac12,0)$ & bound state & its antiparticle \\
+$(0,0)$ & $(0,\pm1)$ & $(0,\frac12)$ & elementary & $\psi_{0R}^{\pm1}$ \\
+four sectors & & $(\frac12,\frac12)$ & multi-particle & bound state $\times\ \psi_{0R}^{\pm1}$ \\
+four sectors & & $(2,0)$, $(0,2)$ & multi-particle & two identical fermions \\
+\bottomrule
+\end{tabular}
+\end{center}
+The bound state is neutral, $2\cdot3 + 1\cdot4 - 2\cdot5 = 0$, and left-moving with $h = \frac12$: from
+\eqref{eq:charge-lattice}, $N_L^\perp$ is the component of $(2,1)$ orthogonal to $(3,4)$, of length
+$|4\cdot2 - 3\cdot1|/5 = 1$, and $N_R^\perp = 0$. It is a massless gauge-invariant composite fermion. Together with
+the neutral right mover $\psi_{0R}$ it forms the massless low-energy content of the theory: one left- and one
+right-moving fermion, central charges $(c_L, c_R) = (1,1)$ instead of $(2,2)$ before gauging.
+
+\latsimfigure{sectors_3450}
+
+\paragraph{Volume dependence.} \Cref{fig:sector_volume_dependence} shows $EL/2\pi$ against the ring size. The
+neutral massless sectors stay exactly at $h+\bar h$. Charged sectors are forbidden by the Gauss law on the ring; if
+one computes them anyway, the seam of the ring acts as an external counter-charge that the massless matter screens
+(\cref{sec:probes}), so $E$ stays finite and $EL$ grows: no massless particle.
+
+\latsimfigure{sector_volume_dependence}
+
+\section{Testing your own theory}
+\begin{python}
+from latsimpkg import ChiralTheory, find_bound_states
+from latsimpkg.plotting import plot_sector_diagram, save_figure
+
+theory = ChiralTheory(QL=[3, 4], QR=[5], g=0.3)   # rejects anomalous charges
+print(theory.anomaly_matrix, theory.meson_masses, theory.global_symmetries().shape[1])
+
+scan = find_bound_states(theory, N=40, nmax=3, Delta_max=2.0)
+assert scan.agrees                                 # lattice = charge lattice
+for s in scan.bound_states:
+    print(s.content, s.h, s.hb)
+save_figure(plot_sector_diagram(scan), "my_theory")
+scan.save("my_theory.npz")                         # reload with SectorScan.load
+\end{python}
+In this example the right mover with charge $0$ is missing; the pairing adds it as a neutral spectator
+(\code{spectator_R1}), and the bound states are those of the 3-4-5-0 model.
+
+\paragraph{Limitations.}
+\begin{itemize}
+  \item Only massless fermions with abelian gauge fields: the Hamiltonian must be quadratic. Massive fermions or
+    four-fermion interactions add cosine terms to the bosonized Hamiltonian and require non-Gaussian methods.
+  \item The search finds massless sectors. Massive bound states would be additional poles in correlation functions;
+    in the Gaussian theories of this release the only massive particles are the free mesons.
+  \item \code{nmax} limits which composites can be found: a bound state needs a representative with
+    $|N_{L,i}|,|N_{R,i}|\leq n_{\max}$.
+  \item The classification assumes a fermionic massless sector ($h\in k^2/2$), as for 3-4-5-0; for other
+    theories inspect $(h,\bar h)$ directly.
+\end{itemize}

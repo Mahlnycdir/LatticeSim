@@ -1,3 +1,7 @@
+"""
+The continuum input: chiral fermions with their U(1)^k charges, anomaly check, pairing into Dirac bosons,
+meson masses and surviving global symmetries.
+"""
 from dataclasses import dataclass
 
 import numpy as np
@@ -31,6 +35,7 @@ class Pairing:
 
     @property
     def F(self):
+        """Number of Dirac bosons (pairs, spectators included)."""
         return self.QV.shape[1]
 
 
@@ -119,10 +124,12 @@ class ChiralTheory:
 
     @property
     def n_L(self):
+        """Number of left movers."""
         return self.QL.shape[1]
 
     @property
     def n_R(self):
+        """Number of right movers."""
         return self.QR.shape[1]
 
     @property
@@ -132,6 +139,7 @@ class ChiralTheory:
 
     @property
     def is_anomaly_free(self):
+        """True if the anomaly matrix vanishes (relative tolerance 1e-12)."""
         scale = max(np.abs(self.QL).max(initial=0.0), np.abs(self.QR).max(initial=0.0), 1.0) ** 2
         return bool(np.abs(self.anomaly_matrix).max() <= 1e-12 * scale)
 

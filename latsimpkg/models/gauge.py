@@ -61,22 +61,27 @@ class GaugeModel:
 
     @property
     def M(self):
+        """The Hamiltonian matrix M of (1/2) X^T M X."""
         return self.H.M
 
     @property
     def F(self):
+        """Number of Dirac bosons (flavors)."""
         return self.pairing.F
 
     @property
     def k(self):
+        """Number of U(1) gauge fields."""
         return self.theory.k
 
     @property
     def QV(self):
+        """Vector charges of the pairing, shape (k, F)."""
         return self.pairing.QV
 
     @property
     def QA(self):
+        """Axial charges of the pairing, shape (k, F)."""
         return self.pairing.QA
 
 

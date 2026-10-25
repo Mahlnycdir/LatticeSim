@@ -1,3 +1,6 @@
+"""
+Geometry of the spatial lattice: number of sites, spacing and boundary condition (open chain or ring).
+"""
 from dataclasses import dataclass
 
 import numpy as np
@@ -46,4 +49,5 @@ class Lattice:
 
     @property
     def is_ring(self):
+        """True for periodic boundary conditions."""
         return self.boundary == "ring"

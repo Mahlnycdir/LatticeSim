@@ -209,13 +209,19 @@ replaces `main.py` and writes all results to `results/` (git-ignored). 32 new te
    Done: object-oriented matplotlib only (no pyplot, tested), Okabe-Ito colours, residual panels with the scale in the
    label; `studies/figures.py` lists the 9 documentation figures with LaTeX captions, renders incrementally
    (`python -m studies.figures`, `--force`) and writes `figures/manifest.json` for the documentation. 18 tests.
-2. **Documentation** (`tools/build_docs.py`, `make docs`, LaTeX via latexmk), in English:
+2. ✅ **Documentation** (`tools/build_docs.py`, `make docs`, LaTeX via latexmk), in English:
    - API reference generated from the docstrings (docstrings keep ASCII math);
    - hand-written theory chapters, prerequisite quantum mechanics and linear algebra: harmonic oscillator,
      Gaussian states, Williamson normal form, lattice scalar field, bosonization, Gauss law and Schwinger model,
      anomalies, compact bosons and charge lattice, charge sectors, worked example 3-4-5-0 (bound-state search);
    - figures from `studies/` included automatically.
-3. **Literature cross-check** of all reference values, with citations.
+   Done: `docs/latticesim.tex` + `docs/chapters/` (7 chapters, conventions appendix, references), generated
+   `docs/generated/` (API reference, one .tex per figure, unicode guard), output `docs/build/latticesim.pdf`
+   (53 pages, builds without LaTeX warnings). `Makefile` with test/test-all/studies/figures/docs/clean.
+   11 tests in `tests/test_docs.py`, including: every module is in the API reference, every public object has a
+   docstring (29 were added), every figure is shown, every reference is cited, the full build has no warnings (slow).
+3. **Literature cross-check** of all reference values, with citations. Includes verifying the bibliography of
+   `docs/chapters/references.tex` (written from memory) and the claims attributed to it.
 4. **Stress tests of the base**, above all the mathematics: property-based tests (random symplectic matrices,
    random anomaly-free theories), time evolution vs. normal modes, invariances.
 5. **Roadmap clean-up** (finished phases condensed), merge to `main`.

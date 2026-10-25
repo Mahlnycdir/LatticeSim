@@ -1,3 +1,6 @@
+"""
+Layout of the phase-space vector X = (q, p) with named blocks, and the symplectic matrix J.
+"""
 from dataclasses import dataclass
 
 import numpy as np
@@ -21,6 +24,7 @@ class Block:
 
     @property
     def size(self):
+        """Number of coordinates in the block (product of the shape)."""
         return int(np.prod(self.shape, dtype=int))
 
 
@@ -82,6 +86,7 @@ class PhaseSpace:
 
     @property
     def blocks(self):
+        """The blocks in phase-space order."""
         return tuple(self._blocks)
 
 

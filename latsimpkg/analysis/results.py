@@ -89,16 +89,19 @@ class Sector:
 
     @property
     def h(self):
+        """Left-moving conformal weight h = (Delta + s)/2."""
         h = (self.Delta + self.s) / 2
         return 0.0 if abs(h) < 1e-9 else h
 
     @property
     def hb(self):
+        """Right-moving conformal weight hb = (Delta - s)/2."""
         hb = (self.Delta - self.s) / 2
         return 0.0 if abs(hb) < 1e-9 else hb
 
     @property
     def key(self):
+        """(NL, NR): the representative, used to match numerics and analytics."""
         return (self.NL, self.NR)
 
     def as_dict(self):
@@ -107,11 +110,13 @@ class Sector:
                 "h": self.h, "hb": self.hb, "kind": self.kind, "content": self.content}
 
     def to_json(self):
+        """JSON-serializable dict (used by `SectorScan.save`)."""
         return {"NL": list(self.NL), "NR": list(self.NR), "Delta": self.Delta, "s": self.s,
                 "kind": self.kind, "content": self.content}
 
     @classmethod
     def from_json(cls, d):
+        """Inverse of `to_json`."""
         return cls(tuple(d["NL"]), tuple(d["NR"]), d["Delta"], d["s"], d["kind"], d.get("content", ""))
 
 
@@ -155,14 +160,17 @@ class SectorScan(_Saveable):
 
     @property
     def bound_states(self):
+        """Numerical sectors classified as bound states."""
         return tuple(x for x in self.numeric if x.kind == "bound state")
 
     @property
     def elementary(self):
+        """Numerical sectors that are single elementary fermions."""
         return tuple(x for x in self.numeric if x.kind == "elementary")
 
     @property
     def multi_particle(self):
+        """Numerical sectors that are multi-particle states."""
         return tuple(x for x in self.numeric if x.kind == "multi-particle")
 
     @property
@@ -197,6 +205,7 @@ class Spectrum(_Saveable):
 
     @property
     def omega_min(self):
+        """Lowest frequency."""
         return float(self.frequencies[0])
 
     @property
@@ -207,6 +216,7 @@ class Spectrum(_Saveable):
         return float(np.max(np.abs(self.frequencies - self.prediction)))
 
     def count_below(self, value):
+        """Number of frequencies below `value`."""
         return int(np.sum(self.frequencies < value))
 
 
@@ -227,6 +237,7 @@ class Series(_Saveable):
 
     @property
     def max_deviation(self):
+        """max |y - prediction| (nan without prediction)."""
         if self.prediction.size != self.y.size:
             return float("nan")
         return float(np.max(np.abs(self.y - self.prediction)))
@@ -249,9 +260,11 @@ class FitWindow:
 
     @classmethod
     def bulk(cls, N):
+        """Default window for N sites (see class docstring)."""
         return cls(N // 2 - N // 5, 5, int(0.37 * N))
 
     def check(self, N):
+        """Raise ValueError if the window does not fit into N sites."""
         if not (0 <= self.j0 and 1 <= self.r_min < self.r_max and self.j0 + self.r_max <= N):
             raise ValueError(f"Fit window {self} does not fit into N = {N} sites.")
 
@@ -279,6 +292,7 @@ class FitResult(_Saveable):
 
     @property
     def rel_deviation(self):
+        """|mu - mu_expected| / mu_expected."""
         return abs(self.mu - self.mu_expected) / self.mu_expected
 
     def model(self, r):
@@ -305,6 +319,7 @@ class Potential(_Saveable):
 
     @property
     def max_rel_deviation(self):
+        """max |V / prediction - 1| (nan without prediction)."""
         if self.prediction.size != self.V.size:
             return float("nan")
         return float(np.max(np.abs(self.V / self.prediction - 1)))

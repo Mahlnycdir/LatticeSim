@@ -1,3 +1,7 @@
+"""
+Quadratic Hamiltonians H = (1/2) X^T M X: normal modes, Williamson normal form including zero modes,
+Gaussian ground state, conserved charges and constrained minima. The numerical core of the library.
+"""
 from dataclasses import dataclass
 from functools import cached_property
 
@@ -35,7 +39,7 @@ class QuadraticHamiltonian:
         K^T J K = 0; then every zero mode is a free particle.
         Equations of motion X' = J M X, so a linear charge w^T X is conserved iff M J w = 0,
         i.e. the conserved charges are A = J K (orthonormal because J is orthogonal).
-        The oscillators live on W = K^omega ∩ K^perp = {X : K^T X = 0, K^T J X = 0}, with basis B.
+        The oscillators live on W = K^omega cap K^perp = {X : K^T X = 0, K^T J X = 0}, with basis B.
         There M_W = B^T M B is positive definite and Omega_W = B^T J B is the (non-standard)
         symplectic form of the coordinates xi = B^T X. Every X splits uniquely as
             X = M^+ A G c + B xi + K kappa,   c = A^T X,   G = (A^T M^+ A)^(-1),
@@ -95,6 +99,7 @@ class QuadraticHamiltonian:
     # ------------------------------------------------------------------
     @property
     def J(self):
+        """Symplectic matrix of the phase space."""
         return self.phasespace.J
 
     @cached_property
@@ -119,6 +124,7 @@ class QuadraticHamiltonian:
 
     @property
     def n_oscillators(self):
+        """Number of oscillators n - r."""
         return self.n - self.n_free
 
     @cached_property

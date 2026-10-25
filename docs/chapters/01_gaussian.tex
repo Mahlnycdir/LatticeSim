@@ -1,0 +1,177 @@
+\chapter{Quadratic Hamiltonians and Gaussian states}\label{chap:gaussian}
+
+Every model in this library reduces to a system of coupled harmonic oscillators. This chapter develops the
+complete theory of such systems: equations of motion, normal modes, the ground state, and the special role of
+zero modes. It is implemented in \code{latsimpkg.quadratic.QuadraticHamiltonian}.
+
+\section{Phase space and the symplectic matrix}
+Consider $n$ degrees of freedom with coordinates $q_1,\dots,q_n$ and momenta $p_1,\dots,p_n$, collected in the
+\emph{phase-space vector}
+\begin{equation}
+  \X = (q_1,\dots,q_n,\,p_1,\dots,p_n)^T .
+\end{equation}
+The canonical commutation relations $\comm{q_j}{p_k} = i\delta_{jk}$, $\comm{q_j}{q_k}=\comm{p_j}{p_k}=0$
+($\hbar = 1$) take the compact form
+\begin{equation}\label{eq:ccr}
+  \comm{X_a}{X_b} = i J_{ab}, \qquad
+  J = \begin{pmatrix} 0 & \mathbb{1}_n \\ -\mathbb{1}_n & 0 \end{pmatrix}.
+\end{equation}
+$J$ is the \emph{symplectic matrix}; it is real, antisymmetric, orthogonal, and $J^2 = -\mathbb{1}$.
+In the library the layout of $\X$ is described by a \code{PhaseSpace} with named blocks (for a field: one block
+of coordinates $\varphi_{i,j}$ per flavor $i$ and site $j$, and its conjugate momenta), and \code{PhaseSpace.J}
+is the matrix \eqref{eq:ccr}.
+
+\section{Quadratic Hamiltonians and equations of motion}
+A quadratic Hamiltonian is
+\begin{equation}\label{eq:quadratic-H}
+  H = \tfrac12 \X^T M \X = \tfrac12 \sum_{a,b} M_{ab} X_a X_b ,
+\end{equation}
+with a real symmetric $2n\times 2n$ matrix $M$. Stability requires $M$ to be positive semidefinite,
+$\X^T M \X \geq 0$, otherwise the energy is unbounded from below.
+
+The Heisenberg equation $\dot X_a = i\comm{H}{X_a}$ follows from \eqref{eq:ccr} and
+$\comm{X_bX_c}{X_a} = X_b\comm{X_c}{X_a} + \comm{X_b}{X_a}X_c$:
+\begin{equation}
+  \comm{H}{X_a} = \tfrac12 M_{bc}\bigl(i X_b J_{ca} + i J_{ba} X_c\bigr) = -i (JM\X)_a ,
+\end{equation}
+using $J^T = -J$ and the symmetry of $M$. Hence
+\begin{equation}\label{eq:eom}
+  \dot{\X} = J M \X , \qquad \X(t) = e^{JMt}\X(0).
+\end{equation}
+The operator equations are linear and identical to the classical Hamilton equations; everything about the
+dynamics is encoded in the matrix $JM$.
+
+\begin{example}[single oscillator]
+For $H = \frac12(\omega^2 q^2 + p^2)$ we have $M = \operatorname{diag}(\omega^2, 1)$ and
+$JM = \begin{pmatrix}0&1\\-\omega^2&0\end{pmatrix}$ with eigenvalues $\pm i\omega$.
+\end{example}
+
+\section{Normal modes and the Williamson normal form}
+A linear change of variables $\X = S\vect{Y}$ preserves the commutation relations, $\comm{Y_a}{Y_b} = iJ_{ab}$,
+if and only if
+\begin{equation}
+  S J S^T = J ,
+\end{equation}
+i.e.\ if $S$ is \emph{symplectic}. The quantum mechanics of quadratic Hamiltonians is therefore the linear
+algebra of symplectic transformations. The central result is
+\begin{theorem}[Williamson~\cite{Williamson1936}]\label{thm:williamson}
+For every real symmetric positive definite $M$ there is a symplectic $S$ with
+\begin{equation}
+  S^T M S = \begin{pmatrix} \Omega & 0 \\ 0 & \Omega \end{pmatrix}, \qquad
+  \Omega = \operatorname{diag}(\omega_1,\dots,\omega_n),\ \omega_k > 0 .
+\end{equation}
+\end{theorem}
+In the new variables $\vect{Y} = (Q_1,\dots,Q_n,P_1,\dots,P_n)$ the Hamiltonian decouples into independent
+oscillators,
+\begin{equation}
+  H = \sum_{k=1}^n \frac{\omega_k}{2}\bigl(Q_k^2 + P_k^2\bigr)
+    = \sum_k \omega_k \bigl(a_k^\dagger a_k + \tfrac12\bigr),\qquad a_k = \tfrac{1}{\sqrt2}(Q_k + iP_k).
+\end{equation}
+The $\omega_k$ are the \emph{normal-mode frequencies}; the eigenvalues of $JM$ are $\pm i\omega_k$. The ground
+state $\ket{0}$ is annihilated by all $a_k$ and has the \emph{zero-point energy}
+\begin{equation}\label{eq:E0}
+  E_0 = \frac12\sum_k \omega_k .
+\end{equation}
+Excited states are obtained by acting with $a_k^\dagger$; in field theory each $a_k^\dagger$ creates a particle
+of energy $\omega_k$.
+
+\paragraph{How the library computes it.} Diagonalizing the non-symmetric matrix $JM$ is numerically delicate.
+Instead, $JM = M^{-1/2}\,(M^{1/2} J M^{1/2})\,M^{1/2}$ is similar to the antisymmetric matrix
+$A = M^{1/2} J M^{1/2}$, so the frequencies are the positive eigenvalues of the \emph{Hermitian} matrix $iA$.
+Its eigenvectors $v = (x + iy)/\sqrt2$ for eigenvalue $\omega$ satisfy $Ax = \omega y$, $Ay = -\omega x$. With the
+orthogonal $O = (y_1,\dots,y_n,x_1,\dots,x_n)$ one has $O^T A O = \begin{pmatrix}0&\Omega\\-\Omega&0\end{pmatrix}$,
+and
+\begin{equation}
+  S = M^{-1/2}\, O \begin{pmatrix}\Omega^{1/2}&0\\0&\Omega^{1/2}\end{pmatrix}
+\end{equation}
+is the Williamson transformation: $S^TMS = \operatorname{diag}(\Omega,\Omega)$ and $SJS^T = J$ (check it using
+$M^{-1/2} J M^{-1/2} = -A^{-1}$). This is \code{QuadraticHamiltonian.frequencies} and \code{.williamson}.
+
+\section{The ground state: Gaussian states and the covariance matrix}
+The ground state of a quadratic Hamiltonian is a \emph{Gaussian state}: all its properties follow from the
+first and second moments. By symmetry $\expval{\X} = 0$, and the second moments are collected in the
+\emph{covariance matrix}
+\begin{equation}
+  \sigma_{ab} = \tfrac12 \expval{\acomm{X_a}{X_b}} .
+\end{equation}
+In normal-mode variables the oscillator ground state has $\expval{Q_k^2} = \expval{P_k^2} = \frac12$ and no
+correlations, so $\sigma_Y = \frac12\mathbb{1}$, and transforming back,
+\begin{equation}\label{eq:sigma}
+  \sigma = \tfrac12 S S^T
+  = \tfrac12 M^{-1/2}\,\bigl|M^{1/2} J M^{1/2}\bigr|\,M^{-1/2},
+\end{equation}
+where $|A| = \sqrt{A^TA}$. For a single oscillator this gives the familiar
+$\expval{q^2} = 1/(2\omega)$ and $\expval{p^2} = \omega/2$. Any correlation function of linear operators
+follows, e.g.\ $\expval{(\vect{u}^T\X)(\vect{v}^T\X)}_{\rm sym} = \vect{u}^T\sigma\vect{v}$; the electric-field
+correlator of \cref{chap:gauge} is computed this way.
+
+\paragraph{Uncertainty principle and purity.} For every quantum state
+\begin{equation}\label{eq:uncertainty}
+  \sigma + \tfrac{i}{2}J \;\geq\; 0
+\end{equation}
+(as a Hermitian matrix), the matrix form of the Heisenberg uncertainty relation~\cite{Weedbrook2012}. A Gaussian
+state is \emph{pure} exactly if the smallest eigenvalue of $\sigma + \frac{i}{2}J$ is zero: all Williamson
+eigenvalues of $\sigma$ equal $\frac12$. The tests check this for every ground state the library produces.
+
+\section{Zero modes: free particles and conserved charges}\label{sec:zero-modes}
+If $M$ has a kernel, \cref{thm:williamson} does not apply. The simplest example is a free particle,
+$H = p^2/2m$: $M = \operatorname{diag}(0, 1/m)$, the coordinate $q$ is a \emph{flat direction}, and the momentum
+$p$ is conserved. On a ring the uniform shift of a field is such a flat direction, and its conserved momentum
+turns out to be a fermion number (\cref{chap:bosonization}); zero modes are therefore not a nuisance but the
+place where the charges live.
+
+\paragraph{Conserved linear charges.} A linear operator $\vect{w}^T\X$ is conserved if
+$\frac{d}{dt}\vect{w}^T\X = \vect{w}^T J M \X = 0$ for all $\X$, i.e.
+\begin{equation}
+  M J \vect{w} = 0 \quad\Longleftrightarrow\quad \vect{w} \in J\ker M .
+\end{equation}
+With an orthonormal basis $K$ of $\ker M$ the conserved charges are the columns of $A = JK$.
+
+\paragraph{Normal form with zero modes.} We require the kernel to be \emph{isotropic}, $K^TJK = 0$: no two flat
+directions are conjugate to each other (a pair $q,p$ with $H$ independent of both would have no dynamics at all
+and no ground state). Then every flat direction is a free particle, and the phase space splits into
+\begin{itemize}
+  \item the flat directions $K$ (positions of the free particles),
+  \item their conjugates, measured by the conserved charges $\vect{c} = A^T\X$ (momenta of the free particles),
+  \item the oscillator space $W = \{\X : K^T\X = 0,\ K^TJ\X = 0\}$.
+\end{itemize}
+On $W$ the matrix $M$ is positive definite and the Williamson construction applies with the symplectic form
+$\Omega_W = B^TJB$ of a basis $B$ of $W$. Every $\X$ decomposes uniquely as
+$\X = M^+ A G \vect{c} + B\vect{\xi} + K\vect{\kappa}$ with the pseudo-inverse $M^+$ and
+$G = (A^T M^+ A)^{-1}$, and the energy separates exactly:
+\begin{equation}\label{eq:free-normal-form}
+  H = \tfrac12\, \vect{c}^T G\, \vect{c} \;+\; \tfrac12\, \vect{\xi}^T (B^TMB)\, \vect{\xi} .
+\end{equation}
+The first term is the kinetic energy of the free particles, the second a set of oscillators.
+
+\paragraph{Lowest energy at fixed charges.} Because the two terms in \eqref{eq:free-normal-form} are independent,
+the lowest energy in the sector with conserved charges $\vect{c}$ is $\frac12\vect{c}^TG\vect{c}$ above the
+oscillator ground state. It equals the classical constrained minimum, which follows from a Lagrange multiplier
+$\vect{\lambda}$:
+\begin{equation}\label{eq:constrained-minimum}
+  \min_{A^T\X = \vect{c}} \tfrac12 \X^T M \X : \quad M\X = A\vect{\lambda}
+  \ \Rightarrow\ \X^* = M^+ A G \vect{c}, \quad E(\vect{c}) = \tfrac12\, \vect{c}^T G\, \vect{c} .
+\end{equation}
+This formula is the engine of the bound-state search (\cref{chap:bound}). In the library it is implemented by
+the methods \code{free_energy} and \code{constrained_minimum} of \code{QuadraticHamiltonian}. The ground-state
+covariance with zero
+modes, \code{.covariance}, describes the oscillators at sharp conserved charges; the flat directions themselves
+have infinite variance.
+
+\section{In code}
+\begin{python}
+import numpy as np
+from latsimpkg.quadratic import QuadraticHamiltonian
+
+H = QuadraticHamiltonian(np.diag([1.7**2, 1.0]))   # one oscillator, omega = 1.7
+H.frequencies             # [1.7]
+H.covariance[0, 0]        # <q^2> = 1/(2 omega)
+H.ground_state_energy     # 0.85
+
+free = QuadraticHamiltonian(np.diag([0.0, 1.0]))   # free particle H = p^2/2
+free.n_free, free.conserved_charges               # 1, A = J K: the charge c = -p
+free.free_energy([2.0])                            # c = 2 (p = -2)  ->  E = 2
+\end{python}
+\code{QuadraticHamiltonian} checks its input: $M$ must be symmetric, positive semidefinite, finite, match the
+phase space and have an isotropic kernel; otherwise it raises an error instead of returning wrong numbers. The
+test suite verifies the construction on random symplectic matrices with known frequencies and free particles.
