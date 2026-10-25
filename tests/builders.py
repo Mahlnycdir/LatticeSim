@@ -5,16 +5,19 @@ The tests never construct models directly but only through the functions in this
 When the API changes (ROADMAP phases 1-3), only these adapters are rewritten; the tests,
 i.e. the physics they check, stay untouched.
 
-Theories are given in chiral form (one U(1)): left charges QL, right charges QR, paired
-fermion by fermion into Dirac bosons with Q^V = (Q_L + Q_R)/2, Q^A = (Q_L - Q_R)/2.
+Theories are given in chiral form: left charges QL, right charges QR. They are turned into a
+`ChiralTheory` (validation, anomaly check) and paired into Dirac bosons with
+Q^V = (Q_L + Q_R)/2, Q^A = (Q_L - Q_R)/2 by `ChiralTheory.pairing`.
 """
 import numpy as np
 
 from latsimpkg.charge_lattice import charge_lattice_spectrum
+from latsimpkg.conventions import vector_axial
 from latsimpkg.phasespace import PhaseSpace
 from latsimpkg.quadratic import QuadraticHamiltonian
 from latsimpkg.ring import RingGaugeTheory
 from latsimpkg.scalar import ScalarFieldGaugeTheory
+from latsimpkg.theory import ChiralTheory
 
 
 # Known theories in chiral form.
@@ -25,10 +28,13 @@ THEORIES = {
 }
 
 
-def vector_axial(QL, QR):
-    """Pairing L_i <-> R_i: (Q^V, Q^A)."""
-    QL = np.asarray(QL, dtype=float); QR = np.asarray(QR, dtype=float)
-    return (QL + QR) / 2, (QL - QR) / 2
+def paired_charges(QL, QR, g=1.0, allow_anomalous=False):
+    """(Q^V, Q^A) of a single-U(1) ChiralTheory; U(1)^k models follow in phase 3."""
+    theory = ChiralTheory(QL, QR, g, allow_anomalous=allow_anomalous)
+    if theory.k != 1:
+        raise NotImplementedError("The current lattice models support one U(1) only (phase 3).")
+    p = theory.pairing()
+    return p.QV[0], p.QA[0]
 
 
 def free_chain(N, a=1.0):
@@ -38,9 +44,9 @@ def free_chain(N, a=1.0):
     return model
 
 
-def open_gauge_model(QL, QR, N, g, a=1.0):
+def open_gauge_model(QL, QR, N, g, a=1.0, allow_anomalous=False):
     """Gauged theory on the open chain with the full Hamiltonian built."""
-    QV, QA = vector_axial(QL, QR)
+    QV, QA = paired_charges(QL, QR, g, allow_anomalous)
     model = ScalarFieldGaugeTheory(N, a, g, QV, QA)
     model.add_interacting_hamiltonian_matrix()
     return model
@@ -55,7 +61,7 @@ def free_ring(N, F=1, a=1.0):
 
 def ring_model(QL, QR, N, g, a=1.0):
     """Gauged theory on the ring with the full Hamiltonian built."""
-    QV, QA = vector_axial(QL, QR)
+    QV, QA = paired_charges(QL, QR, g)
     model = RingGaugeTheory(N, a, g, QV, QA)
     model.add_interacting_hamiltonian_matrix()
     return model
@@ -117,5 +123,5 @@ def sector_scan(model, nmax=3, Delta_max=2.0):
 
 def analytic_sectors(QL, QR, nmax=3, Delta_max=2.0):
     """Charge-lattice prediction, same format as `sector_scan`."""
-    QV, QA = vector_axial(QL, QR)
+    QV, QA = paired_charges(QL, QR)
     return charge_lattice_spectrum(QV, QA, nmax=nmax, Delta_max=Delta_max)

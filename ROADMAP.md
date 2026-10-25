@@ -115,7 +115,13 @@ run through `QuadraticHamiltonian` and `base.py` is no longer needed.
 
 ---
 
-## Phase 2 – Theory and lattice
+## Phase 2 – Theory and lattice  ✅ done
+
+Status: `conventions.py`, `lattice.py`, `theory.py` (`ChiralTheory`, `Pairing`, `schwinger`, `axial_schwinger`,
+`model_3450`) with 56 new tests in `test_conventions_lattice.py` and `test_theory.py`. The test adapters build every
+model through `ChiralTheory` (anomaly check included; anomalous tests pass `allow_anomalous=True`). Cross-check:
+the analytic `global_symmetries()` span exactly the conserved charges found numerically on the ring.
+`Lattice` is not yet used by the models; it is wired in by the model builder of phase 3.
 
 `ChiralTheory(QL, QR, g, names=None)`
 - `QL`: k x n_L, `QR`: k x n_R (one row per U(1)), `g`: k couplings.
