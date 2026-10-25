@@ -203,9 +203,12 @@ replaces `main.py` and writes all results to `results/` (git-ignored). 32 new te
 
 ## Release 0.1 – first usable version (after phase 4, then merge to `main`)
 
-1. **Plotting** (`latsimpkg/plotting.py`, matplotlib, headless): plots take saved results only (no recomputation);
+1. ✅ **Plotting** (`latsimpkg/plotting.py`, matplotlib, headless): plots take saved results only (no recomputation);
    vector PDF for LaTeX plus PNG. First plots: dispersion/spectrum, sector diagram in the (h, hb) plane with bound
    states highlighted, finite-size scaling, E correlator with fit, screening/confinement potential.
+   Done: object-oriented matplotlib only (no pyplot, tested), Okabe-Ito colours, residual panels with the scale in the
+   label; `studies/figures.py` lists the 9 documentation figures with LaTeX captions, renders incrementally
+   (`python -m studies.figures`, `--force`) and writes `figures/manifest.json` for the documentation. 18 tests.
 2. **Documentation** (`tools/build_docs.py`, `make docs`, LaTeX via latexmk), in English:
    - API reference generated from the docstrings (docstrings keep ASCII math);
    - hand-written theory chapters, prerequisite quantum mechanics and linear algebra: harmonic oscillator,
