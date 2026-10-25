@@ -7,6 +7,7 @@ from scipy.special import k0
 from scipy.optimize import curve_fit
 
 from latsimpkg.base import LatticeHamiltonian
+from latsimpkg.phasespace import PhaseSpace
 
 class ScalarFieldGaugeTheory(LatticeHamiltonian):
     """
@@ -51,6 +52,12 @@ class ScalarFieldGaugeTheory(LatticeHamiltonian):
             raise ValueError(f"QV ({len(self.QV)}) and QA ({len(self.QA)}) need one entry per flavor!")
         self.F = len(self.QV)
         self.g = g
+
+
+    @property
+    def phasespace(self):
+        """X = (varphi_{i,j}, P_{i,j}) with blocks of shape (F, N)."""
+        return PhaseSpace([("phi", "P", (self.F, self.N))])
 
 
     def free_hamiltonian_matrix(self):

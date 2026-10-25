@@ -209,7 +209,7 @@ if __name__ == "__main__":
     A = r.conserved_charges()
     print(f"  conserved charges from ker(M J): {A.shape[1]}   (prediction 2: winding n and momentum m)")
     for NL, NR in [((1,), (0,)), ((0,), (1,)), ((1,), (1,)), ((2,), (0,)), ((2,), (1,))]:
-        d = r.sector_energy(NL, NR, A)
+        d = r.sector_energy(NL, NR)
         print(f"  N_L = {NL[0]:2d}  N_R = {NR[0]:2d}   E L/(2 pi) = {d['Delta']:.6f}  "
               f"(pred {(NL[0]**2 + NR[0]**2) / 2:.3f})   s = {d['s']:+.6f}  (pred {(NL[0]**2 - NR[0]**2) / 2:+.3f})")
 
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     for name, QV, QA in MODELS:
         r = ring_model(QV, QA, N_ring, g_ring)
         A = r.conserved_charges()
-        T = r.charge_map(A)
+        T = r.charge_map()
         anomaly = np.abs(T @ np.concatenate([r.QA, r.QV])).max() / np.abs(T).max()
         gauge = np.concatenate([r.QV, r.QA])
         resid = np.linalg.norm(gauge - np.linalg.pinv(T) @ T @ gauge) / np.linalg.norm(gauge)
@@ -266,9 +266,8 @@ if __name__ == "__main__":
     tests = [((2, 1), (-2, 0)), ((0, 0), (0, 1)), ((2, 1), (-2, 1)), ((1, 0), (0, 0)), ((0, 0), (1, 0))]
     print(f"  {'N_L, N_R':20s} {'q':>4s}   " + "   ".join(f"E (N={n:3d})   E L/2pi" for n in Ns_ring))
     rings = [ring_model(QV_3450, QA_3450, n, g_ring) for n in Ns_ring]
-    charges = [r.conserved_charges() for r in rings]
     for NL, NR in tests:
-        ds = [r.sector_energy(NL, NR, A) for r, A in zip(rings, charges)]
+        ds = [r.sector_energy(NL, NR) for r in rings]
         print(f"  {str(NL) + ' ' + str(NR):20s} {ds[0]['q']:4.0f}   " + "   ".join(
             f"{d['E']:.6f}  {d['Delta']:9.4f}" for d in ds))
 

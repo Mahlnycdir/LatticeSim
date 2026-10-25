@@ -2,7 +2,8 @@
 import numpy as np
 import pytest
 
-from builders import THEORIES, free_chain, ground_state_covariance, normal_modes, open_gauge_model, symplectic_matrix
+from builders import (THEORIES, free_chain, ground_state_covariance, ground_state_energy, normal_modes,
+                      open_gauge_model, symplectic_matrix)
 from physics import dirichlet_momenta
 
 
@@ -44,4 +45,4 @@ def test_ground_state_is_pure(name):
 def test_zero_point_energy():
     N, a = 50, 0.001
     model = free_chain(N, a)
-    assert model.ground_state_energy() == pytest.approx(0.5 * dirichlet_momenta(N, a).sum(), rel=1e-12)
+    assert ground_state_energy(model) == pytest.approx(0.5 * dirichlet_momenta(N, a).sum(), rel=1e-12)

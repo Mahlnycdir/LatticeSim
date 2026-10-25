@@ -84,9 +84,14 @@ Invariance tests (cover real classes of bugs):
 
 ---
 
-## Phase 1 – Core: `PhaseSpace` and `QuadraticHamiltonian`
+## Phase 1 – Core: `PhaseSpace` and `QuadraticHamiltonian`  ✅ done
 
 **Goal:** all linear algebra for H = ½ XᵀMX in one place, robust and model independent.
+
+Status: `latsimpkg/phasespace.py`, `latsimpkg/quadratic.py`, 34 new tests in `tests/test_quadratic.py`
+(random symplectic matrices with known oscillators and free particles). `base.py` only holds thin
+compatibility wrappers around `quadratic()` and is removed in phase 3; `ring.py` uses `PhaseSpace` and the
+core's conserved charges and free-particle energies. `main.py` output unchanged up to round-off (~1e-14).
 
 `PhaseSpace`
 - named coordinate blocks, e.g. `phi[i]` (N sites), `theta_bar[i]` (1); every block automatically

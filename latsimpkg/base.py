@@ -2,22 +2,26 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
+from latsimpkg.phasespace import PhaseSpace
+from latsimpkg.quadratic import QuadraticHamiltonian
+
 
 class LatticeHamiltonian(ABC):
     """
     Base class for all lattice simulations in the Hamiltonian formulation.
 
-    Provides the infrastructure shared by every simulation: the lattice
-    geometry (number of sites and lattice spacing), storage for the
-    Hamiltonian matrix and generic routines for quadratic Hamiltonians
-        H = (1/2) X^T M X,   [X_a, X_b] = i J_ab,
-    namely the symplectic matrix J, the normal-mode frequencies and the
-    ground-state covariance. These routines only use M and therefore work
-    for every Gaussian (free or Gaussian-interacting) model.
+    Provides the lattice geometry (number of sites and lattice spacing), the storage
+    for the Hamiltonian matrix M of H = (1/2) X^T M X and the connection to the
+    model-independent core `QuadraticHamiltonian`, which does all the linear algebra
+    (normal modes, ground state, zero modes, conserved charges).
 
     The model-specific physics (field content, discretization, couplings,
     boundary conditions) is defined in subclasses by overriding
-    `free_hamiltonian_matrix` and `add_interacting_hamiltonian_matrix`.
+    `free_hamiltonian_matrix`, `add_interacting_hamiltonian_matrix` and `phasespace`.
+
+    Note: `normal_modes`, `ground_state_energy`, `ground_state_covariance` and
+    `symplectic_matrix` are thin compatibility wrappers around `quadratic()`; they are
+    removed together with this class in phase 3 of the roadmap.
 
     Attributes:
         N (int): Number of lattice sites.
@@ -39,14 +43,25 @@ class LatticeHamiltonian(ABC):
             TypeError: If N is not an integer.
             ValueError: If N is smaller than 2.
         """
-        if not isinstance(N, int):
+        if not isinstance(N, (int, np.integer)) or isinstance(N, bool):
             raise TypeError(f"A simulation based on non-integer ({N}) is not possible!")
         elif N < 2:
             raise ValueError(f"A simulation on less then two ({N}) lattice points is not possible!")
 
-        self.N = N
+        self.N = int(N)
         self.a = a
         self.hamiltonian = None
+
+
+    @property
+    def hamiltonian(self):
+        return self._hamiltonian
+
+    @hamiltonian.setter
+    def hamiltonian(self, M):
+        """Every assignment (also `+=`) invalidates the cached `QuadraticHamiltonian`."""
+        self._hamiltonian = M
+        self._quadratic = None
 
 
     @abstractmethod
@@ -73,87 +88,43 @@ class LatticeHamiltonian(ABC):
         """
 
 
-    def _matrix(self, M):
-        """Return M, or the stored Hamiltonian if M is None."""
+    @property
+    def phasespace(self):
+        """Layout of X. Subclasses with named fields override this; default: flat."""
+        return PhaseSpace.flat(self.hamiltonian.shape[0] // 2)
+
+
+    def quadratic(self, M = None):
+        """
+        The `QuadraticHamiltonian` of M (default: the stored Hamiltonian, cached until it changes).
+
+        Raises:
+            RuntimeError: If no Hamiltonian has been built yet.
+        """
         if M is not None:
-            return M
+            return QuadraticHamiltonian(M)
         if self.hamiltonian is None:
             raise RuntimeError("No Hamiltonian built yet, call free_hamiltonian_matrix() first.")
-        return self.hamiltonian
+        if self._quadratic is None:
+            self._quadratic = QuadraticHamiltonian(self.hamiltonian, self.phasespace)
+        return self._quadratic
 
 
     def symplectic_matrix(self, n):
-        """
-        The symplectic matrix J, defined by the commutator [X_a, X_b] = i J_ab
-        for X = (q_0, ..., q_(n-1), p_0, ..., p_(n-1)).
-
-        Args:
-            n (int): Number of degrees of freedom (half the phase-space dimension).
-
-        Returns:
-            numpy.ndarray: The (2n x 2n) matrix [[0, I], [-I, 0]].
-        """
-        Z = np.zeros((n, n))
-        I = np.eye(n)
-        return np.block([[Z, I], [-I, Z]])
+        """Symplectic matrix J of n degrees of freedom (compatibility wrapper)."""
+        return PhaseSpace.flat(n).J
 
 
     def normal_modes(self, M = None):
-        """
-        Normal-mode frequencies omega_k > 0 of H = (1/2) X^T M X.
-
-        The eigenvalues of J M come in pairs +- i omega_k. J M is similar to
-        M^(1/2) J M^(1/2), so the omega_k are the eigenvalues of the Hermitian
-        matrix i M^(1/2) J M^(1/2), which is faster and more stable than a
-        non-symmetric eigenvalue problem (requires positive definite M).
-
-        Args:
-            M (numpy.ndarray, optional): Hamiltonian matrix. Defaults to `self.hamiltonian`.
-
-        Returns:
-            numpy.ndarray: The sorted frequencies omega_k (one per degree of freedom).
-        """
-        M = self._matrix(M)
-        n = M.shape[0] // 2
-        Ms = self.sqrtm_psd(M)
-        ev = np.linalg.eigvalsh(1j * (Ms @ self.symplectic_matrix(n) @ Ms))
-        return ev[n:]
+        """Sorted oscillator frequencies omega_k > 0 (compatibility wrapper)."""
+        return self.quadratic(M).frequencies
 
 
     def ground_state_energy(self, M = None):
-        """
-        Ground-state (zero-point) energy E_0 = (1/2) sum_k omega_k.
-
-        Args:
-            M (numpy.ndarray, optional): Hamiltonian matrix. Defaults to `self.hamiltonian`.
-
-        Returns:
-            float: The zero-point energy.
-        """
-        return 0.5 * np.sum(self.normal_modes(M))
+        """Zero-point energy (1/2) sum_k omega_k (compatibility wrapper)."""
+        return self.quadratic(M).ground_state_energy
 
 
     def ground_state_covariance(self, M = None):
-        """
-        Symmetrised ground-state covariance sigma_ab = (1/2) <{X_a, X_b}>.
-
-        Uses sigma = (1/2) M^(-1/2) |M^(1/2) J M^(1/2)| M^(-1/2), valid for
-        positive definite M.
-
-        Args:
-            M (numpy.ndarray, optional): Hamiltonian matrix. Defaults to `self.hamiltonian`.
-
-        Returns:
-            numpy.ndarray: The (2n x 2n) covariance matrix of the ground state.
-        """
-        M = self._matrix(M)
-        Ms = self.sqrtm_psd(M)
-        Msi = np.linalg.inv(Ms)
-        A = Ms @ self.symplectic_matrix(M.shape[0] // 2) @ Ms
-        return 0.5 * Msi @ self.sqrtm_psd(A.T @ A) @ Msi
-
-
-    def sqrtm_psd(self, symmetric_matrix):
-        """Square root of a real symmetric positive semi-definite matrix."""
-        w, U = np.linalg.eigh(symmetric_matrix)
-        return (U * np.sqrt(np.clip(w, 0, None))) @ U.T
+        """Symmetrised ground-state covariance (compatibility wrapper)."""
+        return self.quadratic(M).covariance

@@ -11,6 +11,8 @@ fermion by fermion into Dirac bosons with Q^V = (Q_L + Q_R)/2, Q^A = (Q_L - Q_R)
 import numpy as np
 
 from latsimpkg.charge_lattice import charge_lattice_spectrum
+from latsimpkg.phasespace import PhaseSpace
+from latsimpkg.quadratic import QuadraticHamiltonian
 from latsimpkg.ring import RingGaugeTheory
 from latsimpkg.scalar import ScalarFieldGaugeTheory
 
@@ -59,16 +61,25 @@ def ring_model(QL, QR, N, g, a=1.0):
     return model
 
 
+def quadratic(model, M=None):
+    """The model-independent core for the model's Hamiltonian (or an explicit matrix M)."""
+    return QuadraticHamiltonian(model.hamiltonian if M is None else M)
+
+
 def normal_modes(model):
-    return model.normal_modes()
+    return quadratic(model).frequencies
+
+
+def ground_state_energy(model):
+    return quadratic(model).ground_state_energy
 
 
 def ground_state_covariance(model, M=None):
-    return model.ground_state_covariance(M)
+    return quadratic(model, M).covariance
 
 
 def symplectic_matrix(model, n):
-    return model.symplectic_matrix(n)
+    return PhaseSpace.flat(n).J
 
 
 def electric_field_commutator(model):
@@ -86,7 +97,7 @@ def meson_mass_fit(model):
 
 def conserved_charges(model):
     """Basis of the conserved linear charges (columns)."""
-    return model.conserved_charges()
+    return quadratic(model).conserved_charges
 
 
 def charge_map(model):
