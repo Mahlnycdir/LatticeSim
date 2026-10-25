@@ -1,0 +1,140 @@
+\chapter{Gauge fields in one dimension}\label{chap:gauge}
+
+In one spatial dimension the electromagnetic field has no transverse polarizations: there are no photons. The
+electric field is completely fixed by the charges through the Gauss law, and eliminating it leaves an
+interaction between the charges. For bosonized fermions this interaction is quadratic, so the gauge theory stays
+a system of coupled oscillators. This chapter derives the lattice Hamiltonian used by
+\code{models.build_gauge_model} and its main physical consequences.
+
+\section{Electric field and Gauss law}
+In the temporal gauge $A_0 = 0$ the only field is $A_1(x)$ with conjugate momentum $-E(x)$, and the Hamiltonian
+of the gauge field is $\frac12\int E^2$ (there is no magnetic field in one dimension). Physical states satisfy
+the Gauss law
+\begin{equation}\label{eq:gauss}
+  \partial_x E = g\,\rho ,
+\end{equation}
+where $\rho$ is the charge density of the matter and $g$ the coupling. With the bosonized densities
+\eqref{eq:dictionary} and charges \eqref{eq:va-charges},
+\begin{equation}
+  g\rho = \frac{g}{\sqrt\pi}\sum_i\bigl(Q^V_i\,\partial_x\varphi_i + Q^A_i\,\partial_x\vartheta_i\bigr)
+  \quad\Rightarrow\quad
+  E(x) = \frac{g}{\sqrt\pi}\sum_i\bigl(Q^V_i\varphi_i(x) + Q^A_i\vartheta_i(x)\bigr) + e(x) .
+\end{equation}
+The integration constant $e(x)$ is a c-number background: a constant $e = g\theta/2\pi$ (the $\theta$ angle) or
+the field of static external charges (\cref{sec:probes}). The total Hamiltonian is
+\begin{equation}\label{eq:H-gauge}
+  H = \int dx\,\Bigl[\tfrac12\sum_i\bigl(\Pi_i^2 + (\partial_x\varphi_i)^2\bigr) + \tfrac12 E^2\Bigr].
+\end{equation}
+With several gauge fields $U(1)^k$ there is one $E_a$ with coupling $g_a$ and charges $Q^V_a, Q^A_a$ per gauge
+field, and the electric energy is $\frac12\sum_a\int E_a^2$.
+
+\paragraph{On the lattice.} With $\vartheta_{i,j} = \sum_{k\leq j}P_{i,k}$ (the discrete version of
+$\int^x\Pi$) the electric field on site $j$ is a linear function of $\X$,
+\begin{equation}
+  E_j = (C\X)_j + e_j,\qquad
+  E_j = \frac{g}{\sqrt\pi}\sum_i\Bigl(Q^V_i\varphi_{i,j} + Q^A_i\sum_{k\leq j}P_{i,k}\Bigr) + e_j ,
+\end{equation}
+and the electric energy $\frac a2\sum_jE_j^2$ adds $aC^TC$ to the matrix $M$ (plus a linear term and a constant
+if $e\neq0$). On the ring the zero modes enter as well. Both zero modes are defined as \emph{averages} over the
+ring, so the slope of the winding and the cumulative sum are centred:
+\begin{equation}
+  \varphi_{i,j} = \tilde\varphi_{i,j} + W_i\Bigl(\frac jN - \Bigl\langle\frac jN\Bigr\rangle\Bigr),\qquad
+  \vartheta_{i,j} = \bar\vartheta_i + \sum_{k\leq j}P_{i,k} - \Bigl\langle\sum_{k\leq j}P_{i,k}\Bigr\rangle_j .
+\end{equation}
+Then $\comm{\varphi_j}{\vartheta_k} = i\bigl(\mathbb{1}(j\leq k) - \frac12 - \frac1{2N}\bigr)\to\frac i2\operatorname{sign}(k-j)$,
+the translation-invariant commutator of the compact boson, and the duality $\varphi\leftrightarrow\vartheta$ holds
+exactly on the lattice: the axial and the vector Schwinger model have identical spectra $\sqrt{\mu^2+k^2}$ on the ring.
+(Choosing $\bar\vartheta$ as the value at the first site instead couples it to all momentum modes and spoils the
+spectrum for axial charges; the stress tests found and now guard against exactly this.)
+
+\section{The Schwinger model}
+The Schwinger model~\cite{Schwinger1962,LowensteinSwieca1971} is a single Dirac fermion with charge $1$
+($Q_L = Q_R = 1$, so $Q^V = 1$, $Q^A = 0$). Then $E = (g/\sqrt\pi)\varphi$ and \eqref{eq:H-gauge} becomes
+\begin{equation}
+  H = \int dx\,\Bigl[\tfrac12\Pi^2 + \tfrac12(\partial_x\varphi)^2 + \frac{g^2}{2\pi}\varphi^2\Bigr]:
+\end{equation}
+a free boson of mass
+\begin{equation}\label{eq:schwinger-mass}
+  \mu = \frac{g}{\sqrt\pi} .
+\end{equation}
+The massless fermions have disappeared from the spectrum; the only particle is a massive neutral boson, the
+``meson''. Its mass is generated non-perturbatively by the gauge field.
+
+\paragraph{General charges.} For one gauge field with charges $Q_L,Q_R$ (anomaly free, \cref{chap:anomalies})
+exactly one combination of the bosons becomes massive, with
+\begin{equation}\label{eq:meson-mass}
+  \mu^2 = \frac{g^2}{\pi}\sum_i\bigl[(Q^V_i)^2 + (Q^A_i)^2\bigr] = \frac{g^2}{2\pi}\sum\bigl(Q_L^2 + Q_R^2\bigr),
+\end{equation}
+and the remaining $F-1$ combinations stay massless. For $U(1)^k$ the masses are the square roots of the
+eigenvalues of $\mu^2_{ab} = (g_ag_b/2\pi)(Q_{L,a}\cdot Q_{L,b} + Q_{R,a}\cdot Q_{R,b})$
+(\code{ChiralTheory.meson_masses}).
+
+\section{Spectra on the open chain}
+On the open chain the predicted spectrum is one branch $\sqrt{\mu^2 + k_n^2}$ and $F-1$ massless branches $k_n$,
+with the Dirichlet momenta \eqref{eq:dirichlet}. For vector charges the electric field acts locally on $\varphi$
+and the prediction is exact on the lattice. Axial charges act on $\vartheta$, a sum over all sites to the left,
+whose boundary conditions differ from Dirichlet: the momenta become $k_n = (n+\delta)\pi/L$ with a phase shift
+$\delta$, and the prediction holds only in the bulk. \Cref{fig:spectra_open_chain,fig:finite_size_scaling} show
+both effects; the deviation for axial charges falls like $1/N$.
+
+\latsimfigure{spectra_open_chain}
+\latsimfigure{finite_size_scaling}
+
+\paragraph{Continuum limit.} At fixed physical length $L$ the lowest frequency of the Schwinger model approaches
+$\sqrt{\mu^2 + (\pi/L)^2}$ as $a\to0$, with the $(ka)^2$ lattice correction of \cref{chap:lattice}
+(\cref{fig:continuum_limit}).
+
+\latsimfigure{continuum_limit}
+
+\section{Measuring the mass: the electric-field correlator}
+The electric field is proportional to the massive boson, so its correlations measure $\mu$. For a free boson of
+mass $\mu$ the equal-time correlator in the ground state is
+\begin{equation}
+  \expval{\Phi(x)\Phi(0)} = \int\frac{dk}{2\pi}\,\frac{e^{ikx}}{2\sqrt{k^2+\mu^2}} = \frac{1}{2\pi}K_0(\mu|x|),
+\end{equation}
+with the modified Bessel function $K_0$, which decays like $e^{-\mu|x|}$. The library computes
+$\expval{E_jE_k} = (C\sigma C^T)_{jk}$ from the covariance matrix \eqref{eq:sigma} and fits $A K_0(\mu r) + B$
+in a window away from the boundaries (\code{analysis.correlators.meson_mass_from_E} with an explicit
+\code{FitWindow}). The offset $B$ is a uniform fluctuation of the background field caused by the open boundary,
+non-zero for axial charges. The fitted masses agree with \eqref{eq:meson-mass} to about $10^{-3}$
+(\cref{fig:correlator_fits}).
+
+\latsimfigure{correlator_fits}
+
+\section{Probe charges: screening and confinement}\label{sec:probes}
+Place static external charges $+q$ at $x=0$ and $-q$ at $x = d$. By the Gauss law they create the background
+$e(x) = gq$ for $0<x<d$. The ground-state energy shift is the potential $V(d)$ between them. For the Schwinger
+model the Hamiltonian is $\int[\frac12\Pi^2 + \frac12(\partial\varphi)^2 + \frac12(\mu\varphi + e)^2]$, and
+minimizing over $\varphi$ in Fourier space gives
+\begin{equation}
+  V(d) = \frac12\int\frac{dk}{2\pi}\,|e_k|^2\frac{k^2}{k^2+\mu^2}
+       = g^2q^2\int\frac{dk}{2\pi}\frac{1 - \cos kd}{k^2+\mu^2}
+       = \frac{g^2q^2}{2\mu}\bigl(1 - e^{-\mu d}\bigr).
+\end{equation}
+The potential saturates: the massless fermions \emph{screen} any charge, even a fractional one~\cite{CJS1975}.
+With $\mu = g/\sqrt\pi$ the prefactor is $g^2q^2/2\mu = \frac{\sqrt\pi}{2}gq^2$, which is exactly the flat-space
+result quoted in~\cite{BharadwajIsenKang2026}, eq.~(3.88); the lattice reproduces it to $5\times10^{-4}$.
+Without charged matter ($\mu = 0$) the same formula gives $V(d) = g^2q^2d/2$: a constant electric field between
+the charges, linear \emph{confinement} with string tension $g^2q^2/2$. On the lattice the potential is the
+background energy $\min_{\X}[\frac12\X^TM\X + \vect{b}^T\X] + \text{const} = \text{const} - \frac12\vect{b}^TM^+\vect{b}$
+(\code{api.screening_potential}); \cref{fig:probe_potentials} shows both regimes.
+
+\latsimfigure{probe_potentials}
+
+\section{The theta angle}
+A constant background field $e = g\theta/2\pi$ is the $\theta$ angle of the theory. With massless fermions it is
+unphysical: in the Schwinger model it is removed by the shift $\varphi\to\varphi - \sqrt\pi\,\theta/2\pi$, which
+corresponds to a chiral rotation of the fermions. On the ring this shift is a zero mode and costs nothing, so the
+background energy vanishes (numerically $10^{-15}$). On the open chain the Dirichlet boundary fixes $\varphi$ at the
+ends and a small boundary energy remains. A physical $\theta$ dependence requires massive fermions, which are
+beyond the Gaussian methods of this release.
+
+\section{In code}
+\begin{python}
+from latsimpkg import schwinger, ChiralTheory, spectrum, screening_potential
+
+sp = spectrum(schwinger(g=0.04), N=300)          # open chain
+sp.max_deviation                                 # ~1e-14: exact for vector charges
+pot = screening_potential(schwinger(g=0.1), N=400, distances=range(2, 120, 6), q=0.5)
+pot.meta["regime"], pot.max_rel_deviation        # 'screening', ~5e-4
+\end{python}

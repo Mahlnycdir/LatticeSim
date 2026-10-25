@@ -1,0 +1,100 @@
+\chapter{A free scalar field on a lattice}\label{chap:lattice}
+
+A quantum field in one spatial dimension is an infinite collection of coupled oscillators, one per point $x$.
+Replacing the continuum by a lattice of $N$ sites turns it into exactly the finite system of
+\cref{chap:gaussian}; this Hamiltonian lattice formulation goes back to Kogut and
+Susskind~\cite{KogutSusskind1975}. This chapter introduces the discretization used throughout the library, the two boundary
+conditions, and the continuum limit.
+
+\section{The continuum theory}
+A real scalar field $\varphi(x)$ with conjugate momentum $\Pi(x)$, $\comm{\varphi(x)}{\Pi(y)} = i\delta(x-y)$,
+has the Hamiltonian
+\begin{equation}\label{eq:H-continuum}
+  H = \int dx\, \Bigl[\tfrac12 \Pi^2 + \tfrac12 (\partial_x\varphi)^2 + \tfrac12 \mu^2 \varphi^2\Bigr].
+\end{equation}
+Plane waves $e^{ikx}$ are normal modes with $\omega_k = \sqrt{\mu^2 + k^2}$: the field describes free particles of
+mass $\mu$ (speed of light $c = 1$). For $\mu = 0$ the particles are massless and move at the speed of light.
+
+\section{Discretization}
+Put the field on sites $x_j = ja$, $j = 0,\dots,N-1$, with lattice spacing $a$, and define
+\begin{equation}
+  \varphi_j = \varphi(x_j), \qquad P_j = a\,\Pi(x_j) .
+\end{equation}
+The factor $a$ makes the lattice variables canonical: the continuum $\delta(x-y)$ becomes $\delta_{jk}/a$, so
+$\comm{\varphi_j}{P_k} = i\delta_{jk}$. Replacing $\int dx \to a\sum_j$ and
+$\partial_x\varphi \to (\varphi_{j+1}-\varphi_j)/a$ gives
+\begin{equation}\label{eq:H-lattice}
+  H = \sum_j \Bigl[\frac{P_j^2}{2a} + \frac{(\varphi_{j+1}-\varphi_j)^2}{2a}\Bigr]
+     = \tfrac12 \X^T M \X, \qquad \X = (\varphi_0,\dots,\varphi_{N-1},P_0,\dots,P_{N-1}).
+\end{equation}
+The differences $\ell_j = \varphi_{j+1} - \varphi_j$ live on the \emph{links} between sites; the library
+represents them by a matrix $B$ with $\ell = B\X$, so that the gradient energy is $\X^TB^TB\X/(2a)$.
+
+\section{Open chain with Dirichlet boundary conditions}
+On the open chain the field is fixed to zero just outside the lattice, $\varphi_{-1} = \varphi_N = 0$. There
+are $N+1$ links and
+\begin{equation}
+  M = \frac1a\begin{pmatrix} K & 0 \\ 0 & \mathbb{1}\end{pmatrix},\qquad
+  K = \begin{pmatrix} 2 & -1 & & \\ -1 & 2 & -1 & \\ & \ddots & \ddots & \ddots \\ & & -1 & 2\end{pmatrix}.
+\end{equation}
+The eigenvectors of $K$ are standing waves $\sin(k_n x_j)$ with
+\begin{equation}\label{eq:dirichlet}
+  k_n = \frac{\pi n}{L},\quad L = (N+1)a, \qquad
+  \omega_n = \frac{2}{a}\sin\frac{k_n a}{2},\qquad n = 1,\dots,N .
+\end{equation}
+$L$ is the distance between the two fixed points. For $k_n a \ll 1$ the lattice dispersion reproduces the
+continuum, $\omega_n = k_n\bigl(1 - (k_na)^2/24 + \dots\bigr)$: lattice artefacts are of order $(ka)^2$.
+\Cref{fig:free_chain_spectrum} compares the numerical frequencies with \eqref{eq:dirichlet}.
+
+\latsimfigure{free_chain_spectrum}
+
+\paragraph{Ultraviolet behaviour.} The zero-point energy $E_0 = \frac12\sum_n\omega_n$ grows like $N/a$: it
+is dominated by the shortest wavelengths and has no continuum limit. Physical statements always concern
+\emph{differences} of energies (masses, excitation energies, potentials), which do have a limit.
+
+\section{The ring and its zero modes}\label{sec:ring}
+On a ring (periodic boundary conditions, $\varphi_N \equiv \varphi_0$, $L = Na$) the momenta are
+$k_n = 2\pi n/L$, and the mode $n = 0$ is special: shifting the whole field, $\varphi_j \to \varphi_j + c$,
+costs no energy. In the language of \cref{sec:zero-modes} the uniform shift is a flat direction, and the total
+momentum
+\begin{equation}
+  P_{\rm tot} = \sum_j P_j
+\end{equation}
+is a conserved charge with kinetic energy $P_{\rm tot}^2/(2L)$ (each $P_j = P_{\rm tot}/N$ contributes
+$P_j^2/2a$).
+
+\paragraph{Compact fields and windings.} In the theories of this library the field is \emph{compact}: $\varphi$
+and $\varphi + \sqrt\pi$ describe the same physical configuration (\cref{chap:bosonization} explains why). Then
+the field may wind around the ring,
+\begin{equation}
+  \varphi(x + L) = \varphi(x) + \sqrt\pi\, n,\qquad n\in\mathbb{Z},
+\end{equation}
+and the winding number $n$ cannot change under continuous time evolution. The library writes such a field as a
+periodic part plus a uniform slope, $\varphi_j = \tilde\varphi_j + W j/N$ with $W = \sqrt\pi n$ (in the
+electric field the slope is centred, see \cref{chap:gauge}). Because the
+periodic differences sum to zero, the gradient energy splits into $\sum_j(\tilde\varphi_{j+1}-\tilde\varphi_j)^2/2a
++ W^2/(2L)$. $W$ is treated as a canonical momentum, conjugate to a new coordinate $\bar\vartheta$ (the
+\emph{dual zero mode}, \cref{chap:bosonization}): the phase space on the ring is
+\begin{equation}
+  \X = (\tilde\varphi_0,\dots,\tilde\varphi_{N-1},\ \bar\vartheta,\ P_0,\dots,P_{N-1},\ W),
+\end{equation}
+of dimension $2(N+1)$ per field. Both $P_{\rm tot}$ and $W$ are conserved for the free field, and the energy of a
+configuration with given values is
+\begin{equation}\label{eq:zero-mode-energy}
+  E = \frac{P_{\rm tot}^2}{2L} + \frac{W^2}{2L} .
+\end{equation}
+With $P_{\rm tot} = \sqrt\pi m$ and $W = \sqrt\pi n$ this is $E = \pi(m^2 + n^2)/(2L)$: an energy proportional to
+$1/L$, the hallmark of a massless particle in a box. \Cref{chap:bosonization} identifies $n$ and $m$ with fermion
+numbers.
+
+\section{In code}
+\begin{python}
+from latsimpkg import ChiralTheory, Lattice, build_gauge_model
+
+free = ChiralTheory([0], [0], g=0.0)          # one neutral fermion = one free boson
+open_chain = build_gauge_model(free, Lattice(50, a=0.1, boundary="open"))
+open_chain.H.frequencies                        # (2/a) sin(k_n a/2)
+
+ring = build_gauge_model(free, Lattice(20, boundary="ring"))
+ring.H.n_free                                   # 2 conserved charges: P_tot and W
+\end{python}

@@ -1,0 +1,118 @@
+\documentclass[11pt,a4paper]{report}
+
+% ----------------------------------------------------------------------
+% packages
+% ----------------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,capitalise]{cleveref}
+\IfFileExists{generated/unicode.tex}{\input{generated/unicode.tex}}{}
+
+% ----------------------------------------------------------------------
+% notation
+% ----------------------------------------------------------------------
+\newcommand{\vect}[1]{\bm{#1}}
+\newcommand{\X}{\vect{X}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\ket}[1]{\lvert #1\rangle}
+\newcommand{\bra}[1]{\langle #1\rvert}
+\newcommand{\expval}[1]{\langle #1\rangle}
+\newcommand{\comm}[2]{[#1,\,#2]}
+\newcommand{\acomm}[2]{\{#1,\,#2\}}
+\newcommand{\QL}{Q_L}
+\newcommand{\QR}{Q_R}
+\newcommand{\QV}{Q^V}
+\newcommand{\QA}{Q^A}
+\usepackage{url}
+\DeclareUrlCommand\code{\urlstyle{tt}}   % code in text: breaks at . and _, no escaping needed
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{example}{Example}[chapter]
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+% ----------------------------------------------------------------------
+% code listings
+% ----------------------------------------------------------------------
+\definecolor{codebg}{gray}{0.96}
+\definecolor{codekw}{RGB}{0,82,147}
+\definecolor{codecomment}{RGB}{110,110,110}
+\definecolor{codestr}{RGB}{163,21,21}
+\lstdefinestyle{python}{
+  language=Python, basicstyle=\ttfamily\small, backgroundcolor=\color{codebg},
+  keywordstyle=\color{codekw}\bfseries, commentstyle=\color{codecomment}\itshape,
+  stringstyle=\color{codestr}, showstringspaces=false, columns=fullflexible,
+  frame=none, xleftmargin=0.6em, framexleftmargin=0.6em, aboveskip=0.8em, belowskip=0.8em,
+  breaklines=true, upquote=true}
+\lstdefinestyle{shell}{basicstyle=\ttfamily\small, backgroundcolor=\color{codebg}, columns=fullflexible,
+  xleftmargin=0.6em, framexleftmargin=0.6em, breaklines=true, upquote=true}
+\lstnewenvironment{python}{\lstset{style=python}}{}
+\lstnewenvironment{shell}{\lstset{style=shell}}{}
+
+% ----------------------------------------------------------------------
+% macros used by the generated API reference (tools/build_docs.py)
+% ----------------------------------------------------------------------
+\DefineVerbatimEnvironment{docverbatim}{Verbatim}{fontsize=\small,xleftmargin=1.2em,formatcom=\color{black!80}}
+\newcommand{\docsection}[1]{\par\smallskip\noindent\textbf{#1}\par}
+\newlist{docitems}{description}{1}
+\setlist[docitems]{font=\normalfont,leftmargin=1.2em,labelindent=0pt,itemsep=1pt,style=nextline}
+\newcommand{\docsig}[2]{\par\smallskip\noindent{\raggedright\ttfamily\small\textbf{#1}#2\par}\smallskip}
+\newcommand{\docclass}[2]{\subsection*{\texttt{class #1}}\label{api:#2}%
+  \addcontentsline{toc}{subsection}{\texttt{#1}}}
+\newcommand{\docfunction}[2]{\subsection*{\texttt{#1}}\label{api:#2}}
+\newcommand{\docmember}[2]{\par\medskip\noindent\textbf{\texttt{#1}}\enspace{\small\itshape #2}\par}
+\newcommand{\docnote}[1]{\par\noindent{\small\itshape #1}\par}
+
+% figures: generated per figure by tools/build_docs.py from figures/manifest.json
+\newcommand{\missingfigure}[2]{\fbox{\parbox{0.8\linewidth}{\centering\small
+  Figure \texttt{#1} is not available yet.\\ Create it with \texttt{#2}.}}}
+\newcommand{\latsimfigure}[1]{\IfFileExists{generated/figures/#1.tex}{\input{generated/figures/#1.tex}}{%
+  \begin{figure}[tbp]\centering\missingfigure{#1}{python tools/build\_docs.py}\caption{(missing)}\end{figure}}}
+
+\setlength{\emergencystretch}{2em}   % long identifiers without break points: stretch lines instead of overfull boxes
+\setcounter{tocdepth}{1}
+\numberwithin{equation}{chapter}
+
+\title{\textbf{LatticeSim}\\[0.5em]
+  \large Hamiltonian lattice simulations of bosonized (1+1)-dimensional gauge theories\\[0.3em]
+  \normalsize From quantum mechanics to the search for bound states}
+\author{LatticeSim documentation, release 0.1}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\input{chapters/00_introduction}
+\input{chapters/01_gaussian}
+\input{chapters/02_lattice_field}
+\input{chapters/03_bosonization}
+\input{chapters/04_gauge_fields}
+\input{chapters/05_anomalies}
+\input{chapters/06_bound_states}
+
+\appendix
+\input{chapters/A_conventions}
+\chapter{API reference}\label{chap:api}
+This chapter is generated from the docstrings of the library (\texttt{tools/build\_docs.py}). The docstrings keep
+their formulas in plain ASCII so that they stay readable in an editor; the typeset mathematics behind them is in
+the preceding chapters.
+\IfFileExists{generated/api.tex}{\input{generated/api.tex}}{\par\emph{Run \texttt{python tools/build\_docs.py} to generate it.}}
+
+\input{chapters/references}
+\end{document}

@@ -1,0 +1,88 @@
+\chapter{Introduction}\label{chap:intro}
+
+\section{What LatticeSim does}
+LatticeSim simulates quantum field theories in one space and one time dimension on a spatial lattice, in the
+Hamiltonian formulation. Its present scope is the class of theories that can be solved \emph{exactly} on the
+lattice by linear algebra: \emph{massless fermions coupled to abelian gauge fields}, $U(1)^k$, with arbitrary
+charges for the left- and right-moving fermions. After bosonization (\cref{chap:bosonization}) and elimination
+of the gauge field through the Gauss law (\cref{chap:gauge}) such a theory becomes a \emph{quadratic}
+Hamiltonian of coupled harmonic oscillators, and everything about it follows from one real symmetric matrix
+(\cref{chap:gaussian}).
+
+The goal of this release is a complete, tested path from the definition of a theory to the question
+\begin{quote}
+\emph{Which gauge-invariant particles does the theory contain, and which of them are bound states of the
+elementary fermions?}
+\end{quote}
+The answer for the 3-4-5-0 chiral gauge theory, a standard test case, is worked out in \cref{chap:bound}:
+the theory contains a massless gauge-invariant composite fermion $\psi_{3L}^2\psi_{4L}\psi_{5R}^{-2}$ and its
+antiparticle, found both from the lattice Hamiltonian and from an independent analytic argument.
+
+\section{How to read this document}
+The prerequisites are quantum mechanics (harmonic oscillator, commutators, Heisenberg picture) and linear algebra.
+Everything else is developed step by step:
+\begin{description}[leftmargin=1.5em,style=nextline]
+  \item[\Cref{chap:gaussian}] Quadratic Hamiltonians, normal modes, the Williamson normal form, Gaussian ground
+    states and zero modes. This is the numerical core of the library.
+  \item[\Cref{chap:lattice}] A free scalar field on a lattice: discretization, boundary conditions, the
+    continuum limit, and the zero modes of a field on a ring.
+  \item[\Cref{chap:bosonization}] Fermions in one dimension and their description by a compact boson; why the
+    fermion numbers are windings and momenta of the boson.
+  \item[\Cref{chap:gauge}] Gauge fields in one dimension: the Gauss law, the Schwinger model and its mass,
+    correlation functions, screening and confinement of probe charges, the $\theta$ angle.
+  \item[\Cref{chap:anomalies}] Gauge anomalies, the anomaly-cancellation condition, and which global symmetries
+    survive the gauging.
+  \item[\Cref{chap:bound}] Charge sectors, the bound-state search, and the 3-4-5-0 model as worked example,
+    including a recipe for testing your own theory.
+\end{description}
+Each chapter states which part of the library implements it, and the figures are produced by the studies that
+come with the library, so every number in this document can be reproduced.
+
+\section{Quick start}
+Installation (Python $\geq 3.10$) into a virtual environment, from the repository root:
+\begin{shell}
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest                      # fast tests; "pytest -m slow" runs the expensive ones
+\end{shell}
+The bound-state search of \cref{chap:bound} in a few lines:
+\begin{python}
+from latsimpkg import ChiralTheory, find_bound_states
+
+theory = ChiralTheory(QL=[3, 4], QR=[5, 0], g=0.3)   # charges of left and right movers
+scan = find_bound_states(theory)
+
+print(scan.agrees)                 # lattice and analytic prediction agree
+for s in scan.bound_states:
+    print(s.content, s.h, s.hb)    # psi_3L^-2 psi_4L^-1 psi_5R^2   0.5  0.0  (antiparticle)
+                                   # psi_3L^2 psi_4L psi_5R^-2      0.5  0.0
+\end{python}
+Studies, figures and this document:
+\begin{shell}
+python -m studies               # run all studies, results -> results/
+python -m studies.figures       # figures -> figures/ (only what is out of date)
+python tools/build_docs.py      # this PDF -> docs/build/latticesim.pdf
+\end{shell}
+
+\section{Structure of the library}
+The package \code{latsimpkg} is built in layers; every layer only uses the layers above it in this list.
+\begin{center}
+\small
+\begin{tabular}{@{}lp{0.7\linewidth}@{}}
+\toprule
+module & content \\
+\midrule
+\code{conventions} & normalizations and sign conventions (\cref{app:conventions}) \\
+\code{theory} & \code{ChiralTheory}: charges, anomaly check, pairing, meson masses \\
+\code{lattice} & \code{Lattice}: number of sites, spacing, open chain or ring \\
+\code{phasespace} & \code{PhaseSpace}: layout of the vector of coordinates and momenta \\
+\code{quadratic} & \code{QuadraticHamiltonian}: normal modes, Williamson form, ground state, zero modes \\
+\code{models} & \code{build_gauge_model}: theory + lattice $\to$ Hamiltonian \\
+\code{analysis} & spectra, correlators, potentials, charge sectors, result types \\
+\code{api} & \code{find_bound_states}, \code{spectrum}, \code{screening_potential} \\
+\code{plotting} & figures of saved results \\
+\bottomrule
+\end{tabular}
+\end{center}
+The API reference (\cref{chap:api}) is generated from the docstrings of these modules.

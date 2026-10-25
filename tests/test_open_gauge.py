@@ -41,7 +41,7 @@ def test_gauss_law_consistent_for_anomaly_free(name):
 @pytest.mark.parametrize("QL, QR", [([2, 1], [0, 1]), ([2, 2], [0, 0]), ([3, 1], [1, 1])])
 def test_anomalous_commutator(QL, QR):
     """[E_j, E_k] = i (g^2/pi) (Q^V.Q^A) sign(k - j), Q^V.Q^A = (sum Q_L^2 - sum Q_R^2)/4."""
-    comm = np.abs(electric_field_commutator(open_gauge_model(QL, QR, N=30, g=G))).max()
+    comm = np.abs(electric_field_commutator(open_gauge_model(QL, QR, N=30, g=G, allow_anomalous=True))).max()
     assert comm == pytest.approx(G**2 / np.pi * abs(gauge_anomaly(QL, QR)) / 4, rel=1e-12)
 
 

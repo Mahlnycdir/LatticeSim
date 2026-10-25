@@ -1,0 +1,68 @@
+\chapter{Conventions and checks}\label{app:conventions}
+
+\section{Conventions}
+All conventions are defined once in \code{latsimpkg.conventions}.
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+quantity & convention \\
+\midrule
+units & $\hbar = c = 1$ \\
+phase space & $\X = (q_1..q_n, p_1..p_n)$, $\comm{X_a}{X_b} = iJ_{ab}$, $J = \begin{pmatrix}0&\mathbb1\\-\mathbb1&0\end{pmatrix}$ \\
+Hamiltonian & $H = \frac12\X^TM\X\ (+\vect{b}^T\X + \text{const with background})$ \\
+lattice variables & $\varphi_j = \varphi(ja)$, $P_j = a\Pi(ja)$, $\comm{\varphi_j}{P_k} = i\delta_{jk}$ \\
+length & open chain $L = (N+1)a$, ring $L = Na$ \\
+dual field & $\vartheta_j = \sum_{k\leq j}P_k$ (+ $\bar\vartheta$ on the ring) \\
+bosonization & $\rho_V = \partial_x\varphi/\sqrt\pi$, $\rho_A = \rho_L - \rho_R = \Pi/\sqrt\pi$, $\varphi\sim\varphi+\sqrt\pi$ \\
+fermion numbers & $n = N_L + N_R$ (winding), $m = N_L - N_R$ (momentum), $n\equiv m \bmod 2$ \\
+charges & $Q^V = (Q_L+Q_R)/2$, $Q^A = (Q_L-Q_R)/2$ \\
+Gauss law & $E_j - E_{j-1} = g\,\rho_j$ (+ probe charges), background $e = g\theta/2\pi$ \\
+spin & $s = -PL/2\pi = h - \bar h$, $P = -\frac1a\sum_jP_j\ell_j$; left movers have $s>0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{What the test suite checks}
+The library is tested against analytic results (\code{pytest}; \code{pytest -m slow} for the expensive tests):
+\begin{itemize}
+  \item linear algebra: oscillator moments, Williamson form on random symplectic matrices with known frequencies and
+    free particles, symplecticity, purity of ground states, constrained minima, input validation;
+  \item free field: Dirichlet spectrum to $10^{-12}$, zero-point energy, ring sectors
+    $\Delta = (N_L^2+N_R^2)/2$ and $s = (N_L^2-N_R^2)/2$;
+  \item gauge theories: Schwinger spectrum exact, meson masses, $a^2$ continuum limit, anomalous commutator
+    \eqref{eq:EE}, correlator fit, screening and confinement potentials, $\theta$ on the ring;
+  \item anomalies and symmetries: anomaly matrices, mixed anomalies, number of conserved charges, numerical
+    conserved charges $=$ analytic global symmetries;
+  \item bound states: 3-4-5-0 sectors and bound states, lattice $=$ charge lattice, independence of $g$ and $N$,
+    $U(1)^2$ examples;
+  \item invariances: pairing, flavor permutation, charge conjugation;
+  \item literature: the values of \cref{sec:literature};
+  \item stress tests (property-based, \code{hypothesis}): the theorems of \cref{chap:gaussian} on random Hamiltonians
+    with frequencies over four orders of magnitude and random symplectic transformations (normal form, purity,
+    stationarity under time evolution, symplectic invariance, scaling, direct sums, constrained minima); random
+    anomaly-free theories (zero modes, commuting electric fields, meson mass in the ring spectrum, conserved charges
+    $=$ anomaly-free symmetries, lattice $=$ charge lattice, independence of $g$, $N$, pairing and charge conjugation);
+    couplings over twelve orders of magnitude are either exact or rejected with an explanation;
+  \item infrastructure: saving and loading of all results, plotting without global state, incremental figures.
+\end{itemize}
+
+\section{Literature cross-check}\label{sec:literature}
+Every reference value of the library was compared with the literature (\code{tests/test_literature.py}). All
+bibliographic data of the references were checked against the publishers or arXiv.
+\begin{center}
+\small
+\begin{tabular}{@{}p{0.27\linewidth}p{0.33\linewidth}p{0.18\linewidth}l@{}}
+\toprule
+quantity & literature & source & lattice \\
+\midrule
+Schwinger mass & $\mu = e/\sqrt\pi$ & \cite{Schwinger1962} & exact \\
+static potential, massless Schwinger & $\frac{\sqrt\pi}{2}eq^2(1 - e^{-\mu d})$ & \cite{BharadwajIsenKang2026}, eq.~(3.88) & $5\times10^{-4}$ \\
+screening of all charges & massless fermions screen & \cite{CJS1975} & reproduced \\
+string tension without matter & $V = e^2q^2d/2$ & \cite{BharadwajIsenKang2026}, eq.~(3.2) & $10^{-12}$ \\
+anomaly cancellation & $\sum Q_L^2 = \sum Q_R^2$; $3^2+4^2 = 5^2$ & \cite{Tong2022,WangWen2019} & exact \\
+second symmetry of 3-4-5-0 & $H = (5,0|3,-4)$, no mixed anomaly with $G$ & \cite{Tong2022}, sec.~3 & found \\
+$H$ gauged: IR Dirac fermion & $\Psi = \psi_2$, $\tilde\Psi = \psi_1^2(\tilde\psi_1^\dagger)^2\tilde\psi_2$, $G = \pm4$ & \cite{Tong2022}, sec.~3 & exact \\
+equal-time propagator & $\int\frac{dk}{2\pi}\frac{e^{ikx}}{2\omega_k} = \frac{K_0(\mu|x|)}{2\pi}$ & numerical integration & $10^{-6}$ \\
+\bottomrule
+\end{tabular}
+\end{center}

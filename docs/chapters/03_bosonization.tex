@@ -1,0 +1,98 @@
+\chapter{Fermions in one dimension and bosonization}\label{chap:bosonization}
+
+The theories of interest contain fermions, but the library simulates bosons. In one spatial dimension this is
+not an approximation: a massless Dirac fermion \emph{is} a compact massless boson, a statement known as
+bosonization~\cite{Coleman1975,Mandelstam1975,Giamarchi2003}. This chapter explains the part of the dictionary
+the library uses and checks it on the spectrum of free fermions on a ring.
+
+\section{Chiral fermions}
+In one dimension a massless fermion field splits into a left-moving and a right-moving component,
+$\psi = (\psi_L, \psi_R)$, with
+\begin{equation}
+  H = \int dx\,\Bigl[\psi_R^\dagger(-i\partial_x)\psi_R + \psi_L^\dagger(i\partial_x)\psi_L\Bigr].
+\end{equation}
+A right mover has energy $E = k$ for momentum $k$, a left mover $E = -k$; both move at the speed of light and
+never scatter into each other without interactions. Each component has its own particle number,
+$N_L = \int\psi_L^\dagger\psi_L$ and $N_R = \int\psi_R^\dagger\psi_R$ (measured relative to the filled Dirac sea).
+A \emph{chiral} theory treats them differently, for example by giving them different gauge charges.
+
+\paragraph{Spectrum on a ring.} On a ring of length $L$ (with antiperiodic boundary conditions for the fermions)
+the single-particle momenta are $(r+\frac12)\,2\pi/L$. Adding $N_R$ right movers above the Fermi sea fills the
+lowest levels and costs
+\begin{equation}
+  \frac{2\pi}{L}\sum_{r=0}^{N_R-1}\Bigl(r+\tfrac12\Bigr) = \frac{2\pi}{L}\,\frac{N_R^2}{2},
+\end{equation}
+the same for holes ($N_R<0$) and for left movers. The lowest energy at given fermion numbers is therefore
+\begin{equation}\label{eq:fermion-sector}
+  E(N_L, N_R) = \frac{2\pi}{L}\,(h + \bar h),\qquad h = \frac{N_L^2}{2},\quad \bar h = \frac{N_R^2}{2},
+\end{equation}
+and its momentum is $P = \frac{2\pi}{L}(\bar h - h)$ (left movers carry negative momentum). Above these states
+there are particle-hole excitations with energies in multiples of $2\pi/L$. The numbers $h,\bar h$ are the
+\emph{conformal weights} of the state; $\Delta = h + \bar h$ is its scaling dimension and $s = h - \bar h$ its
+spin. A single fermion has $\Delta = |s| = \frac12$.
+
+\section{The bosonization dictionary}
+Introduce a scalar field $\varphi$ with momentum $\Pi$ such that the vector (total) and axial (left minus right)
+fermion densities are
+\begin{equation}\label{eq:dictionary}
+  \rho_V = \psi_L^\dagger\psi_L + \psi_R^\dagger\psi_R = \frac{1}{\sqrt\pi}\,\partial_x\varphi,\qquad
+  \rho_A = \psi_L^\dagger\psi_L - \psi_R^\dagger\psi_R = \frac{1}{\sqrt\pi}\,\Pi .
+\end{equation}
+The Hamiltonian of the free fermion becomes the free massless boson,
+$H = \int\frac12[\Pi^2 + (\partial_x\varphi)^2]$, and the particle-hole excitations of the fermions are the
+oscillator modes of the boson. It is convenient to define the \emph{dual field}
+\begin{equation}
+  \vartheta(x) = \int^x dy\,\Pi(y), \qquad \rho_A = \frac{1}{\sqrt\pi}\partial_x\vartheta ,
+\end{equation}
+so that $\varphi$ counts vector charge and $\vartheta$ axial charge in the same way.
+
+\paragraph{Fermion numbers are zero modes.} Integrating \eqref{eq:dictionary} over the ring,
+\begin{equation}
+  n \equiv N_L + N_R = \frac{1}{\sqrt\pi}\bigl[\varphi(L) - \varphi(0)\bigr],\qquad
+  m \equiv N_L - N_R = \frac{1}{\sqrt\pi}\int_0^L \Pi .
+\end{equation}
+The vector fermion number is the \emph{winding} of $\varphi$ and the axial number its \emph{total momentum}.
+Since fermion numbers are integers, $\varphi$ must be compact with period $\sqrt\pi$ (\cref{sec:ring}), and $n$
+and $m$ are integers with
+\begin{equation}\label{eq:parity}
+  n \equiv m \pmod 2,
+\end{equation}
+because $N_L = (n+m)/2$ and $N_R = (n-m)/2$ are integers. This parity rule is what makes the compact boson
+fermionic: $(n,m) = (1,0)$ would be half a left and half a right fermion.
+
+\paragraph{Check.} The zero-mode energy of the boson \eqref{eq:zero-mode-energy} with $W = \sqrt\pi n$,
+$P_{\rm tot} = \sqrt\pi m$ is
+\begin{equation}
+  E = \frac{\pi(n^2+m^2)}{2L} = \frac{\pi}{L}\bigl(N_L^2 + N_R^2\bigr) = \frac{2\pi}{L}\Bigl(\frac{N_L^2}{2}
+  + \frac{N_R^2}{2}\Bigr),
+\end{equation}
+exactly the fermionic result \eqref{eq:fermion-sector}. The lattice momentum $P = -\frac1a\sum_j P_j\ell_j$
+gives
+\begin{equation}
+  s = -\frac{PL}{2\pi} = \frac{nm}{2} = \frac{N_L^2 - N_R^2}{2} = h - \bar h .
+\end{equation}
+The library reproduces both exactly on any ring
+(\code{analysis.sectors.sector_energy}; tested for several $(N_L,N_R)$). Note the sign convention: left movers have
+negative momentum and positive spin, $s = h - \bar h$.
+
+\section{Many fermions and their charges}
+A theory contains left movers $L_1,\dots,L_{n_L}$ and right movers $R_1,\dots,R_{n_R}$, with charges
+$Q_{L,i}$, $Q_{R,j}$ under a $U(1)$ gauge field (for $U(1)^k$: one row of charges per gauge field). To bosonize,
+the library pairs $L_i$ with $R_i$ into a Dirac fermion and describes each pair by one compact boson
+$\varphi_i$. The gauge current $\sum_i (Q_{L,i}\rho_{L,i} + Q_{R,i}\rho_{R,i})$ becomes
+\begin{equation}\label{eq:va-charges}
+  \sum_i \bigl(Q^V_i \rho_{V,i} + Q^A_i \rho_{A,i}\bigr),\qquad
+  Q^V = \frac{Q_L + Q_R}{2},\quad Q^A = \frac{Q_L - Q_R}{2}.
+\end{equation}
+The pairing is bookkeeping: physical results must not depend on it, and the tests check this explicitly for the
+two possible pairings of the 3-4-5-0 model. If $n_L \neq n_R$, the missing partners are added as neutral fermions
+(charge $0$), which are free and decoupled (\code{ChiralTheory.pairing}).
+
+\begin{python}
+from latsimpkg import ChiralTheory
+
+t = ChiralTheory(QL=[3, 4], QR=[5, 0], g=0.3)
+p = t.pairing()
+p.QV, p.QA          # [[4, 2]], [[-1, 2]]
+t.pairing(order=[1, 0]).QV   # the other pairing: [[1.5, 4.5]]
+\end{python}
